@@ -1,0 +1,160 @@
+/**
+ * The one place a jewellery price is calculated.
+ *
+ *   estimated_price = weight_g × price_per_gram(karat) + labour_fee   → then rounded
+ *
+ * Everything is integer arithmetic: weight in milligrams, money in whole Rupiah.
+ * No floating-point money, so 0,1 g and Rp 100 juta+ on the same item stay exact.
+ */
+
+export type LabourFeeType = "per_gram" | "fixed" | "percent";
+export type RoundingMode = "none" | "up" | "nearest";
+
+export type LabourFee = {
+  type: LabourFeeType;
+  /** per_gram: Rupiah per gram. fixed: Rupiah per item. percent: % of the gold value. */
+  value: number;
+};
+
+export type Rounding = {
+  mode: RoundingMode;
+  /** Step in Rupiah, e.g. 1000 rounds to the nearest Rp 1.000. */
+  stepIdr: number;
+};
+
+export type PriceInput = {
+  /** Grams, up to 3 decimals. Accepts the string Postgres returns for numeric(8,3). */
+  weightG: number | string;
+  pricePerGramIdr: number;
+  labourFee: LabourFee;
+  rounding: Rounding;
+};
+
+export type PriceBreakdown = {
+  weightMg: number;
+  pricePerGramIdr: number;
+  goldValueIdr: number;
+  labourFeeIdr: number;
+  subtotalIdr: number;
+  /** totalIdr − subtotalIdr. Positive when rounded up. */
+  roundingAdjustmentIdr: number;
+  totalIdr: number;
+};
+
+export const DEFAULT_ROUNDING: Rounding = { mode: "up", stepIdr: 1000 };
+
+const MAX_WEIGHT_MG = 99_999_999; // numeric(8,3)
+
+function assertNonNegativeFinite(value: number, name: string): void {
+  if (!Number.isFinite(value) || value < 0) {
+    throw new RangeError(`${name} must be a finite number ≥ 0, received ${value}`);
+  }
+}
+
+/** Integer division of non-negative BigInts, rounding half up. */
+function divRoundHalfUp(numerator: bigint, denominator: bigint): bigint {
+  return (numerator * 2n + denominator) / (denominator * 2n);
+}
+
+function toSafeNumber(value: bigint, name: string): number {
+  if (value > BigInt(Number.MAX_SAFE_INTEGER)) {
+    throw new RangeError(`${name} is too large to represent safely`);
+  }
+  return Number(value);
+}
+
+/** Scale a decimal to an integer, rejecting more precision than `decimals` allows. */
+function toScaledInteger(value: number, decimals: number, name: string): bigint {
+  assertNonNegativeFinite(value, name);
+  const factor = 10 ** decimals;
+  const scaled = Math.round(value * factor);
+  if (Math.abs(value * factor - scaled) > 1e-6) {
+    throw new RangeError(`${name} supports at most ${decimals} decimal places, received ${value}`);
+  }
+  return BigInt(scaled);
+}
+
+export function gramsToMilligrams(weightG: number | string): number {
+  const grams = typeof weightG === "string" ? Number(weightG.trim()) : weightG;
+  if (typeof weightG === "string" && weightG.trim() === "") {
+    throw new RangeError("weightG is empty");
+  }
+  const mg = toScaledInteger(grams, 3, "weightG");
+  if (mg <= 0n) {
+    throw new RangeError(`weightG must be greater than 0, received ${weightG}`);
+  }
+  if (mg > BigInt(MAX_WEIGHT_MG)) {
+    throw new RangeError(`weightG exceeds the supported maximum, received ${weightG}`);
+  }
+  return Number(mg);
+}
+
+export function applyRounding(amountIdr: number, rounding: Rounding): number {
+  if (!Number.isInteger(amountIdr) || amountIdr < 0) {
+    throw new RangeError(`amountIdr must be an integer ≥ 0, received ${amountIdr}`);
+  }
+  if (rounding.mode === "none") return amountIdr;
+  if (!Number.isInteger(rounding.stepIdr) || rounding.stepIdr <= 0) {
+    throw new RangeError(`rounding.stepIdr must be an integer > 0, received ${rounding.stepIdr}`);
+  }
+  const amount = BigInt(amountIdr);
+  const step = BigInt(rounding.stepIdr);
+  const rounded =
+    rounding.mode === "up"
+      ? ((amount + step - 1n) / step) * step
+      : divRoundHalfUp(amount, step) * step;
+  return toSafeNumber(rounded, "rounded amount");
+}
+
+export function calculatePrice(input: PriceInput): PriceBreakdown {
+  const { pricePerGramIdr, labourFee, rounding } = input;
+
+  if (!Number.isInteger(pricePerGramIdr) || pricePerGramIdr <= 0) {
+    throw new RangeError(`pricePerGramIdr must be an integer > 0, received ${pricePerGramIdr}`);
+  }
+
+  const weightMg = gramsToMilligrams(input.weightG);
+  const mg = BigInt(weightMg);
+
+  const goldValue = divRoundHalfUp(mg * BigInt(pricePerGramIdr), 1000n);
+
+  let labour: bigint;
+  switch (labourFee.type) {
+    case "per_gram": {
+      // Rate in sen (2 decimals) × milligrams → Rupiah.
+      const rateSen = toScaledInteger(labourFee.value, 2, "labourFee.value");
+      labour = divRoundHalfUp(mg * rateSen, 100_000n);
+      break;
+    }
+    case "fixed": {
+      const sen = toScaledInteger(labourFee.value, 2, "labourFee.value");
+      labour = divRoundHalfUp(sen, 100n);
+      break;
+    }
+    case "percent": {
+      // Percent with 2 decimals → basis points.
+      const basisPoints = toScaledInteger(labourFee.value, 2, "labourFee.value");
+      labour = divRoundHalfUp(goldValue * basisPoints, 10_000n);
+      break;
+    }
+    default: {
+      const unknownType: never = labourFee.type;
+      throw new RangeError(`Unknown labour fee type: ${String(unknownType)}`);
+    }
+  }
+
+  const goldValueIdr = toSafeNumber(goldValue, "gold value");
+  const labourFeeIdr = toSafeNumber(labour, "labour fee");
+  const subtotalIdr = toSafeNumber(goldValue + labour, "subtotal");
+  const totalIdr = applyRounding(subtotalIdr, rounding);
+
+  return {
+    weightMg,
+    pricePerGramIdr,
+    goldValueIdr,
+    labourFeeIdr,
+    subtotalIdr,
+    roundingAdjustmentIdr: totalIdr - subtotalIdr,
+    totalIdr,
+  };
+}
