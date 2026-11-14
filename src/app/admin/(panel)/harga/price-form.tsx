@@ -96,7 +96,7 @@ export function PriceForm({ rows, t }: { rows: PriceFormRow[]; t: Dictionary["ad
       <ul className="space-y-3">
         {rows.map((row) => (
           <li key={row.karatId} className="rounded-lg border bg-background p-3">
-            <fieldset className="grid grid-cols-2 gap-3">
+            <fieldset className="grid grid-cols-2 items-end gap-3">
               <legend className="font-display float-left col-span-2 mb-1 w-full text-xl font-semibold">{row.karatCode}</legend>
               <div>
                 <label htmlFor={`sell-${row.karatId}`} className={fieldLabel}>
