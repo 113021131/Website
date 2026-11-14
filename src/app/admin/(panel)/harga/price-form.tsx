@@ -159,7 +159,7 @@ export function PriceForm({ rows, t }: { rows: PriceFormRow[]; t: Dictionary["ad
       </p>
 
       {warnings ? (
-        <div role="alertdialog" aria-labelledby="confirm-title" className="bg-notice text-notice-foreground rounded-lg p-4">
+        <div role="alertdialog" aria-labelledby="confirm-title" tabIndex={-1} ref={(element) => element?.focus()} className="bg-notice text-notice-foreground rounded-lg p-4">
           <h2 id="confirm-title" className="text-lg font-semibold">
             {t.confirmTitle}
           </h2>

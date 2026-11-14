@@ -18,7 +18,7 @@ export function DeleteProductButton({ productId, t }: { productId: number; t: Di
     );
   }
   return (
-    <div role="alertdialog" aria-label={t.delete} className="bg-notice text-notice-foreground rounded-lg p-4">
+    <div role="alertdialog" aria-label={t.delete} tabIndex={-1} ref={(element) => element?.focus()} className="bg-notice text-notice-foreground rounded-lg p-4">
       <p>{t.deleteConfirm}</p>
       <div className="mt-3 flex flex-col gap-3 sm:flex-row">
         <button

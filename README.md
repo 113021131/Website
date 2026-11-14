@@ -2,7 +2,7 @@
 
 Website for a gold jewellery shop in Indonesia: today's gold price per gram, a jewellery catalogue, and a phone-friendly admin for the owner. Customer-facing copy is Bahasa Indonesia.
 
-**Status: Phase 0 (foundation) complete.** `/` currently opens a picker with three homepage hero directions; the real pages are built in Phase 1 from the one the owner picks.
+**Status: Phase 1 (MVP) built.** Public pages, catalogue and the admin (prices, products, store) work against demo data. Not yet deployed. Phase 2 adds the 3D viewer, calculators, reservations, articles, English and the price-history chart.
 
 ## Stack
 
@@ -51,15 +51,19 @@ The Supabase service-role/secret key is **not used** by this app. Never add it t
 | `npm run test:rls` | Proves a logged-out visitor cannot write or read private tables (runs against the real project) |
 | `npm run test:e2e` | Playwright at 360 px and desktop, with axe accessibility checks. Run `npm run build` first; first time also `npx playwright install chromium` |
 | `npm run check` | lint + typecheck + unit tests + build |
+| `node scripts/seed-demo.mjs` | Create or refresh the 12 DEMO products (`--remove` deletes them) |
+| `node scripts/break-ui-check.mjs` | Measure the worst-case stress page at `/dev/break-ui` (dev server running) |
 
 ## Giving someone admin access
 
-There is no public sign-up. Sign-in is by a one-time email link, and only for accounts the owner created.
+There is no public sign-up. Sign-in is by email and password (or a one-time email link), and only for accounts the owner created.
 
 1. Supabase dashboard → Authentication → Users → **Add user** (tick "Auto Confirm User") with the person's email.
 2. SQL editor: `insert into public.admin_users (email, role) values ('name@example.com', 'owner');` (`'staff'` for staff).
 3. Supabase → Authentication → URL Configuration: add `http://localhost:3000/admin/auth/confirm` and the production equivalent to the redirect allow-list.
-4. They open `/admin/login`, enter the email and follow the link.
+4. They open `/admin/login` and sign in with the password you set, or use "Lupa kata sandi?" to get a one-time link.
+
+A test admin (`e2e-admin@tokosinarmas.test`, owner role) exists for the automated admin tests; its password is only in the git-ignored `.env.local`. **Delete it before launch** (Supabase → Authentication → Users, and its row in `admin_users`).
 
 Roles: `owner` can do everything; `staff` can update prices, edit products and view leads. **Turn on MFA for the owner account** (Supabase → Authentication → Multi-factor) before launch.
 
@@ -85,3 +89,5 @@ The UI treats a `TODO_OWNER` value as missing and shows a neutral fallback. Gold
 
 - `DESIGN.md` — tokens, typography, components, tone of voice
 - `docs/ARCHITECTURE.md` — data model, caching, auth, security rules
+- `docs/OWNER-GUIDE.md` — step-by-step admin guide in Bahasa Indonesia
+- `docs/OWNER-CHECKLIST.md` — Google Business Profile, WhatsApp Business, reviews, photos, pre-launch list

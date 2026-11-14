@@ -34,7 +34,12 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#ffffff",
+  // The on-screen keyboard shrinks the layout on Android, as it does on iOS.
+  interactiveWidget: "resizes-content",
+  // Matches the maroon header at the very top of every public page.
+  themeColor: "#5e0f1f",
+  // Light only: stops dark-mode browsers restyling form controls.
+  colorScheme: "light",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

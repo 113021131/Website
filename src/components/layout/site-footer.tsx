@@ -12,7 +12,7 @@ export function SiteFooter({ store, t }: { store: Store; t: Dictionary }) {
     .join(", ");
 
   return (
-    <footer className="bg-surface-muted mt-auto border-t">
+    <footer className="bg-surface-muted mt-auto border-t pb-[env(safe-area-inset-bottom,0px)]">
       <div className="page-gutter mx-auto grid w-full max-w-[72rem] gap-8 py-10 md:grid-cols-[1.4fr_1fr_1fr]">
         <div>
           <Wordmark name={store.name} />

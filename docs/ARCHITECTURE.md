@@ -1,6 +1,6 @@
 # Architecture
 
-Phase 0 state. Updated at the end of each phase.
+Phase 1 state. Updated at the end of each phase.
 
 ## Shape
 
@@ -17,7 +17,12 @@ There is no privileged server key in the app. A bug in the Next.js code cannot w
 
 | Path | Holds |
 |---|---|
-| `src/app` | Routes. `admin/login`, `admin/(panel)`, `prototypes/hero` (temporary) |
+| `src/app` | Routes. `(public)/…` customer pages, `admin/login`, `admin/(panel)/{harga,produk,toko}`, `dev/break-ui` (dev only, 404 in production) |
+| `src/components` | `layout`, `price`, `catalog`, `product`, `seo`, `ui` |
+| `src/lib/catalog.ts` | Pure catalogue logic: estimates, URL filters, sorting, paging |
+| `src/lib/seo.ts` | JSON-LD builders, indexing switch, opening-hours parsing |
+| `src/lib/analytics.ts`, `src/lib/tryon` | Event wrapper (no provider chosen yet); try-on adapter with a stub |
+| `scripts` | `seed-demo.mjs`, `break-ui-check.mjs` |
 | `src/proxy.ts` | Next 16 "proxy" (formerly middleware): refreshes the session, redirects `/admin/*` without a session |
 | `src/lib/pricing` | `calculatePrice()` — the only place a price is computed |
 | `src/lib/data` | Cached public reads, each tagged for on-demand revalidation |
@@ -73,13 +78,16 @@ Verified two ways: `npm run test:rls` (anonymous, via the public API) and `tests
 
 Next.js Cache Components is on. Public reads are `use cache` functions tagged `prices`, `store`, `settings`, `products`. Pages are prerendered and served from the CDN.
 
-When an admin saves (Phase 1 Server Actions), the action calls `updateTag('prices')`, which expires the cached entry immediately; the next visitor gets the new price. Between changes nothing hits the database.
+The whole catalogue is one cached list (`getCatalogProducts`, tag `products`); filter, sort and paging happen in memory per request, which suits a single shop's catalogue (capped at 1,000 rows).
+
+When an admin saves, the Server Action calls `updateTag('prices')`, which expires the cached entry immediately; the next visitor gets the new price. Between changes nothing hits the database.
 
 `getPriceBoard()` also revalidates hourly so the "older than 24 hours" notice appears without anyone saving anything.
 
 ## Auth
 
-- Supabase Auth, one-time email link, `shouldCreateUser: false` — no public sign-up, and the form cannot be used to send mail to strangers.
+- Supabase Auth: email + password, or a one-time email link with `shouldCreateUser: false` — no public sign-up, and the link form cannot be used to send mail to strangers.
+- Product photos are resized in the admin's browser (max 1600 px, WebP, JPEG on Safari) and uploaded straight to Storage under the admin's own session; storage policies allow writes only for admins.
 - Three layers for `/admin`: the proxy (redirect without a session), `requireAdmin()` in every page and Server Action (must be on the allowlist), and RLS in Postgres.
 - The login form gives the same reply whether or not the email exists.
 
@@ -94,4 +102,6 @@ Money and weight are formatted by hand (`src/lib/format.ts`) rather than with `I
 - One Supabase project serves development and previews. A separate production project comes before launch.
 - Supabase free tier pauses after about a week without activity and has no backups.
 - Vercel Hobby does not permit commercial sites.
-- The sign-in email flow has not been exercised end to end (it needs a real owner email and inbox).
+- The one-time email link has not been exercised end to end (it needs a real inbox). Password sign-in is covered by the Playwright admin tests.
+- No analytics provider is loaded yet; `track()` is a no-op until one is chosen.
+- `/katalog/[slug]` for an unknown slug shows the not-found page but, when streamed to a browser, with HTTP 200. Crawlers get the full render.

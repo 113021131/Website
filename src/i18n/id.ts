@@ -13,6 +13,7 @@ export const id = {
     notProvided: "Belum tersedia",
     seeAll: "Lihat semua",
     back: "Kembali",
+    breadcrumb: "Jejak halaman",
   },
   nav: {
     prices: "Harga Emas",
@@ -38,8 +39,7 @@ export const id = {
   cta: {
     whatsapp: "Tanya via WhatsApp",
     catalog: "Lihat katalog",
-    jewellery: "Lihat perhiasan",
-    whatsappMissing: "Nomor WhatsApp toko belum diisi.",
+    whatsappMissing: "WhatsApp toko belum tersedia. Silakan kunjungi toko.",
     directions: "Buka di Google Maps",
     call: "Telepon toko",
     share: "Bagikan",

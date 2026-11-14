@@ -117,7 +117,7 @@ async function ProductDetail({ params }: Pick<Props, "params">) {
       <JsonLd data={productJsonLd(priced, store.name)} />
       <JsonLd data={breadcrumbJsonLd([...crumbs, { name: product.name, path: `/katalog/${product.slug}` }])} />
 
-      <nav aria-label="Breadcrumb" className="text-muted-foreground text-sm">
+      <nav aria-label={t.common.breadcrumb} className="text-muted-foreground text-sm">
         <ol className="flex flex-wrap items-center gap-x-1.5">
           {crumbs.map((crumb) => (
             <li key={crumb.path} className="flex items-center gap-x-1.5">

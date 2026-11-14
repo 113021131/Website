@@ -230,6 +230,22 @@
     touch-action: manipulation;
   }
 
+  /* Controls are not content: a long press must not select a button's label. */
+  button,
+  summary,
+  [role="button"] {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* The browser's tap flash is off (above), so every link and control answers a
+     press itself, the instant the finger lands. */
+  a:active,
+  button:active,
+  summary:active {
+    opacity: 0.82;
+  }
+
   /* 16px minimum stops iOS and some Android browsers zooming into a focused field. */
   input,
   select,

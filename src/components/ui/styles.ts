@@ -13,7 +13,7 @@ export const buttonWhatsAppOutline = `${buttonBase} border border-whatsapp text-
 
 export const fieldLabel = "block text-sm font-semibold";
 export const fieldInput =
-  "border-input mt-1.5 block min-h-12 w-full rounded-md border bg-background px-3 py-2 text-base " +
+  "border-input placeholder:text-muted-foreground mt-1.5 block min-h-12 w-full rounded-md border bg-background px-3 py-2 text-base " +
   "focus-visible:border-brand aria-invalid:border-destructive";
 export const fieldHint = "text-muted-foreground mt-1.5 text-sm";
 export const fieldError = "text-destructive mt-1.5 text-sm";

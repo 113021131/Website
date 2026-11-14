@@ -75,7 +75,7 @@ export default async function HomePage() {
                 placement="home_hero"
               />
               <Link href="/katalog" className={buttonOnDark}>
-                {t.cta.jewellery}
+                {t.cta.catalog}
               </Link>
             </div>
             <PriceNotices board={board} t={t} tone="dark" />
