@@ -1,6 +1,6 @@
 # Architecture
 
-Phase 1 state. Updated at the end of each phase.
+Phase 2 state. Updated at the end of each phase.
 
 ## Shape
 
@@ -17,15 +17,19 @@ There is no privileged server key in the app. A bug in the Next.js code cannot w
 
 | Path | Holds |
 |---|---|
-| `src/app` | Routes. `(public)/…` customer pages, `admin/login`, `admin/(panel)/{harga,produk,toko}`, `dev/break-ui` (dev only, 404 in production) |
+| `src/app/(id)`, `src/app/en` | Generated route files, one per page per language. Each binds a view to a fixed locale. Do not edit by hand |
+| `src/views` | The real public pages (home, harga-emas, katalog, produk, kalkulator, artikel, …) and the reservation Server Action. They take the language as a prop |
+| `src/app/admin` | `login`, `(panel)/{harga,produk,leads,artikel,toko}` |
+| `src/app/dev/break-ui` | Dev-only stress page, 404 in production |
 | `src/components` | `layout`, `price`, `catalog`, `product`, `seo`, `ui` |
 | `src/lib/catalog.ts` | Pure catalogue logic: estimates, URL filters, sorting, paging |
 | `src/lib/seo.ts` | JSON-LD builders, indexing switch, opening-hours parsing |
 | `src/lib/analytics.ts`, `src/lib/tryon` | Event wrapper (no provider chosen yet); try-on adapter with a stub |
-| `scripts` | `seed-demo.mjs`, `break-ui-check.mjs` |
+| `scripts` | `seed-demo.mjs`, `seed-articles.mjs`, `make-demo-model.mjs`, `break-ui-check.mjs` |
 | `src/proxy.ts` | Next 16 "proxy" (formerly middleware): refreshes the session, redirects `/admin/*` without a session |
 | `src/lib/pricing` | `calculatePrice()` — the only place a price is computed |
-| `src/lib/data` | Cached public reads, each tagged for on-demand revalidation |
+| `src/lib/data` | Cached public reads, each tagged for on-demand revalidation (`public.ts`, and `content.ts` for price history and articles) |
+| `src/lib/warm.ts` | Background refresh of product pages after an admin change |
 | `src/lib/auth` | `requireAdmin()` — the data-access-layer guard |
 | `src/lib/supabase` | `public` (anonymous, cookie-less), `server` (session), generated types |
 | `src/i18n` | Typed dictionaries. `id.ts` is the source; add `en.ts` in Phase 2 |
@@ -84,6 +88,10 @@ When an admin saves, the Server Action calls `updateTag('prices')`, which expire
 
 `getPriceBoard()` also revalidates hourly so the "older than 24 hours" notice appears without anyone saving anything.
 
+**Fixed-address pages versus `[slug]` pages.** Home, the price page and the calculator are fresh on the very next request after a save. A page with a variable address (`/katalog/[slug]`) gives the first visitor after a change the previous copy while a new one is built. So after a price or product save, `warmPaths()` re-requests the affected product pages from the server itself (after the admin's response is sent); customers then get the new estimate. It is best-effort: behind Vercel preview protection the self-request is refused and the page refreshes on its first real visit instead.
+
+**Why there is no `[locale]` segment.** A dynamic language segment made every public page a variable-address page, with the stale-first behaviour above, and regenerating its generic shell at runtime failed. Static routes per language avoid both.
+
 ## Auth
 
 - Supabase Auth: email + password, or a one-time email link with `shouldCreateUser: false` — no public sign-up, and the link form cannot be used to send mail to strangers.
@@ -93,7 +101,9 @@ When an admin saves, the Server Action calls `updateTag('prices')`, which expire
 
 ## i18n
 
-All customer copy is in `src/i18n/id.ts` and read through `getDictionary(locale)`. Routes keep Indonesian slugs. Adding English in Phase 2 means adding `en.ts` and a locale segment; no component text needs to move.
+Customer copy lives in `src/i18n/id.ts` (the source of truth for the shape) and `src/i18n/en.ts`; TypeScript fails the build if English is missing a key. Indonesian is served at plain URLs (`/harga-emas`), English under `/en` (`/en/harga-emas`), with the same Indonesian slugs. `localePath(locale, path)` builds every internal link; `localeAlternates()` emits `hreflang` and canonical tags, and the sitemap lists both languages. The admin and the articles are Indonesian only.
+
+To add a page: write the view in `src/views`, then add a route file under both `src/app/(id)` and `src/app/en` (copy a neighbour). To add a language: add the dictionary, add it to `locales`, and add its route folder.
 
 Money and weight are formatted by hand (`src/lib/format.ts`) rather than with `Intl.NumberFormat`, so the server and every phone browser render identical text (no hydration mismatch or layout shift). Dates use `Intl.DateTimeFormat` on the server only.
 
@@ -104,4 +114,6 @@ Money and weight are formatted by hand (`src/lib/format.ts`) rather than with `I
 - Vercel Hobby does not permit commercial sites.
 - The one-time email link has not been exercised end to end (it needs a real inbox). Password sign-in is covered by the Playwright admin tests.
 - No analytics provider is loaded yet; `track()` is a no-op until one is chosen.
+- The public reservation form is limited in the database (3 per phone number and 60 in total per hour) and has a honeypot; there is no per-IP limit and no CAPTCHA.
+- The 3D preview has only been exercised with a generated ring, not a scanned product model, and AR has not been tried on a phone.
 - `/katalog/[slug]` for an unknown slug shows the not-found page but, when streamed to a browser, with HTTP 200. Crawlers get the full render.

@@ -9,6 +9,7 @@ import { CACHE_TAGS } from "@/lib/data/public";
 import { parseWeightInput } from "@/lib/format";
 import { Constants } from "@/lib/supabase/database.types";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { warmPaths } from "@/lib/warm";
 
 export type ProductFormState = {
   status: "idle" | "saved" | "error";
@@ -132,6 +133,7 @@ export async function saveProduct(
   }
 
   updateTag(CACHE_TAGS.products);
+  await warmPaths([`/katalog/${slug}`]);
   return { status: "saved", message: t.saved, errors: {} };
 }
 

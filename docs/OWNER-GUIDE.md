@@ -1,8 +1,8 @@
-# Panduan Pemilik — Toko Sinar Mas
+# Panduan Pemilik — Toko Emas Sinar Mas
 
 Panduan singkat untuk mengelola situs dari ponsel atau laptop. Semua dilakukan di halaman admin: buka `alamat-situs/admin`.
 
-> Status: Fase 1. Reservasi (leads), artikel, kalkulator, dan tampilan 3D dibangun pada Fase 2; bagiannya di bawah diberi tanda.
+> Status: Fase 2. Harga, produk, reservasi, artikel, impor CSV, dan tampilan 3D sudah tersedia. "Coba Pakai" (try-on) menunggu pilihan vendor.
 
 ## 1. Masuk ke admin
 
@@ -15,7 +15,7 @@ Ada dua peran:
 | Peran | Bisa melakukan |
 |---|---|
 | **Pemilik** | Semua: harga, produk, info toko, pengaturan |
-| **Staf** | Mengubah harga, mengelola produk |
+| **Staf** | Mengubah harga, mengelola produk dan artikel, melihat dan menandai reservasi |
 
 Selesai bekerja di perangkat bersama? Ketuk **Keluar** di kanan atas.
 
@@ -63,13 +63,15 @@ Pilihan lain di formulir:
 
 Tips foto ada di `docs/OWNER-CHECKLIST.md`.
 
-## 5. Mengunggah model 3D (opsional, tampil di Fase 2)
+## 5. Mengunggah model 3D (opsional)
 
-Di bagian **Model 3D**, pilih berkas `.glb` (dan `.usdz` untuk iPhone). Usahakan 1–3 MB; situs memberi peringatan di atas 5 MB. Tampilan 3D baru aktif setelah Fase 2 dan setelah fitur **Tampilan 3D** dinyalakan di **Toko**.
+Di bagian **Model 3D**, pilih berkas `.glb` (dan `.usdz` untuk iPhone). Usahakan 1–3 MB; situs memberi peringatan di atas 5 MB. Produk yang punya model mendapat tab **Pratinjau 3D** di samping foto. Tab ini diberi label pratinjau; foto asli tetap menjadi acuan. Fitur bisa dimatikan di **Toko → Fitur → Tampilan 3D**.
 
 ## 6. Mengelola banyak produk
 
 Di daftar **Produk**: centang beberapa produk, lalu ketuk **Terbitkan yang dipilih** atau **Jadikan draf**. **Gandakan** membuat salinan sebagai draf (tanpa foto), berguna untuk model yang mirip.
+
+**Impor CSV (untuk mengisi katalog pertama kali):** ketuk **Impor CSV**, unduh contoh berkasnya, isi di Excel atau Google Sheets, simpan sebagai CSV, lalu pilih berkasnya. Situs menunjukkan baris mana yang siap dan mana yang perlu diperbaiki sebelum Anda mengimpor. Semua produk masuk sebagai **Draf**: tambahkan foto, lalu terbitkan.
 
 ## 7. Info toko dan pengaturan (khusus pemilik)
 
@@ -82,9 +84,26 @@ Buka **Toko**. Yang diisi di sini langsung tampil di situs; yang dikosongkan tid
 - **Mode contoh**: matikan setelah harga dan produk asli terisi, agar pemberitahuan "data contoh" hilang.
 - **Daftar kadar**: nonaktifkan kadar yang tidak dijual, atau tambah kadar baru.
 
-## 8. Membaca reservasi (Fase 2)
+## 8. Membaca reservasi
 
-Halaman **Reservasi** akan menampilkan nama, nomor telepon, tanggal pilihan, dan catatan dari pengunjung, dengan status *baru / dihubungi / selesai*. Belum tersedia di Fase 1.
+Pengunjung dapat mengetuk **Reservasi ambil di toko** di halaman produk. Reservasinya muncul di **Reservasi**:
+
+1. Tiap kartu berisi nama, nomor telepon, produk, rencana tanggal datang, dan catatan.
+2. Ketuk nomornya untuk menelepon, atau **Chat WhatsApp** untuk membalas.
+3. Ubah **status** menjadi *Dihubungi*, lalu *Selesai* setelah barang diambil.
+4. **Unduh CSV** menyimpan semua reservasi ke satu berkas.
+5. Pemilik dapat **menghapus** reservasi. Lakukan bila pelanggan meminta datanya dihapus.
+
+Satu nomor telepon hanya bisa mengirim 3 reservasi per jam; ini mencegah penyalahgunaan.
+
+## 9. Menulis artikel
+
+1. Buka **Artikel**. Tiga kerangka artikel sudah disiapkan sebagai **Draf**; draf tidak terlihat pengunjung.
+2. Buka salah satu, lengkapi bagian bertanda `[ISI: …]`, dan tulis ulang dengan gaya Anda sendiri.
+3. Isi artikel memakai format sederhana: `## Subjudul`, `- butir daftar`, `**tebal**`.
+4. Ubah **Status** menjadi **Terbit** dan simpan. Artikel muncul di halaman Artikel.
+
+Tulis hanya fakta yang benar tentang toko.
 
 ## Bila ada masalah
 

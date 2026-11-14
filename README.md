@@ -1,8 +1,8 @@
-# Toko Sinar Mas — website
+# Toko Emas Sinar Mas — website
 
 Website for a gold jewellery shop in Indonesia: today's gold price per gram, a jewellery catalogue, and a phone-friendly admin for the owner. Customer-facing copy is Bahasa Indonesia.
 
-**Status: Phase 1 (MVP) built.** Public pages, catalogue and the admin (prices, products, store) work against demo data. Not yet deployed. Phase 2 adds the 3D viewer, calculators, reservations, articles, English and the price-history chart.
+**Status: Phase 2 built.** Public site in Bahasa Indonesia and English, catalogue, calculators, reserve-for-pickup, price-history chart, articles, 3D preview, and an admin for prices, products (with CSV import), reservations, articles and store settings. Prices and products are still demo data. The try-on pilot (Phase 2.5) waits for a vendor choice.
 
 ## Stack
 
@@ -52,6 +52,8 @@ The Supabase service-role/secret key is **not used** by this app. Never add it t
 | `npm run test:e2e` | Playwright at 360 px and desktop, with axe accessibility checks. Run `npm run build` first; first time also `npx playwright install chromium` |
 | `npm run check` | lint + typecheck + unit tests + build |
 | `node scripts/seed-demo.mjs` | Create or refresh the 12 DEMO products (`--remove` deletes them) |
+| `node scripts/seed-articles.mjs` | Insert the three draft article stubs |
+| `node scripts/make-demo-model.mjs` | Generate a small procedural 3D ring and attach it to a demo product |
 | `node scripts/break-ui-check.mjs` | Measure the worst-case stress page at `/dev/break-ui` (dev server running) |
 
 ## Giving someone admin access

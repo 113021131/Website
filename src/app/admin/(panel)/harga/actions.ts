@@ -4,8 +4,9 @@ import { updateTag } from "next/cache";
 import { z } from "zod";
 import { fill, getDictionary } from "@/i18n";
 import { requireAdmin } from "@/lib/auth/dal";
-import { CACHE_TAGS } from "@/lib/data/public";
+import { CACHE_TAGS, getCatalogProducts } from "@/lib/data/public";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { warmPaths } from "@/lib/warm";
 
 const WARN_CHANGE_PERCENT = 5;
 
@@ -96,5 +97,8 @@ export async function savePrices(input: SavePricesInput): Promise<SavePricesResu
 
   // Expire the cached price board now: the next visitor sees the new price.
   updateTag(CACHE_TAGS.prices);
+  // Every product page shows an estimate from these prices; refresh them in the background.
+  const products = await getCatalogProducts();
+  await warmPaths(products.map((product) => `/katalog/${product.slug}`));
   return { status: "saved", message: t.saved };
 }

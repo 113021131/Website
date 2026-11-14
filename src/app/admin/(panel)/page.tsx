@@ -20,6 +20,8 @@ async function AdminHome({ searchParams }: Pick<PageProps<"/admin">, "searchPara
   const cards = [
     { href: "/admin/harga", ...t.dashboard.cards.harga, show: true },
     { href: "/admin/produk", ...t.dashboard.cards.produk, show: true },
+    { href: "/admin/leads", ...t.dashboard.cards.leads, show: true },
+    { href: "/admin/artikel", ...t.dashboard.cards.artikel, show: true },
     { href: "/admin/toko", ...t.dashboard.cards.toko, show: admin.role === "owner" },
   ].filter((card) => card.show);
 

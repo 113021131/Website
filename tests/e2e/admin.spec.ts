@@ -49,6 +49,14 @@ test("an admin changes a karat price and the public site shows it within seconds
     await expect(page.getByRole("row", { name: /16K/ })).toContainText(grouped(changed));
     expect(Date.now() - started).toBeLessThan(10_000);
 
+    // Product pages are refreshed in the background, so a customer opening one a
+    // few seconds later gets an estimate from the new price.
+    await expect
+      .poll(async () => (await (await page.request.get("/katalog/demo-anting-tusuk-mini-16k")).text()).includes(grouped(changed)), {
+        timeout: 15_000,
+      })
+      .toBe(true);
+
     // The change is in the audit history with who made it.
     await page.goto("/admin/harga");
     const firstHistoryRow = page.getByRole("region", { name: "Riwayat perubahan" }).getByRole("row").nth(1);

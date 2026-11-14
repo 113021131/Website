@@ -272,6 +272,62 @@
   }
 }
 
+/* Long-form article text rendered from Markdown (components/article-body.tsx). */
+@layer components {
+  .article-body {
+    margin-top: var(--space-6);
+    overflow-wrap: break-word;
+  }
+  .article-body > * + * {
+    margin-top: var(--space-4);
+  }
+  .article-body h2 {
+    margin-top: var(--space-8);
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  .article-body h3 {
+    margin-top: var(--space-6);
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  .article-body ul,
+  .article-body ol {
+    padding-left: 1.25rem;
+  }
+  .article-body ul {
+    list-style: disc;
+  }
+  .article-body ol {
+    list-style: decimal;
+  }
+  .article-body li + li {
+    margin-top: var(--space-2);
+  }
+  .article-body a {
+    color: var(--brand);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .article-body blockquote {
+    border-left: 4px solid var(--gold);
+    background: var(--surface-tint);
+    padding: var(--space-3) var(--space-4);
+    border-radius: 0.125rem;
+  }
+  .article-body table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .article-body th,
+  .article-body td {
+    border-top: 1px solid var(--border);
+    padding: var(--space-2) var(--space-3) var(--space-2) 0;
+    text-align: left;
+  }
+}
+
 @utility price {
   /* Every Rupiah amount and weight: digits line up in columns and never wrap. */
   font-variant-numeric: tabular-nums lining-nums;

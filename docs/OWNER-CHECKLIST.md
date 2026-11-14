@@ -1,4 +1,4 @@
-# Daftar Periksa Pemilik — Toko Sinar Mas
+# Daftar Periksa Pemilik — Toko Emas Sinar Mas
 
 Hal-hal di luar kode yang menentukan apakah situs mendatangkan pelanggan. Centang satu per satu.
 
@@ -63,8 +63,9 @@ Situs sudah mencatat kejadian penting (klik WhatsApp, kunjungan halaman harga) t
 
 ## 8. Sebelum situs diluncurkan
 
-- [ ] Harga emas asli terisi; **Mode contoh** dimatikan.
+- [ ] Riwayat harga contoh dihapus (lihat `supabase/seed/demo_price_history.sql`), lalu harga emas asli diisi; **Mode contoh** dimatikan.
 - [ ] Produk contoh dihapus (`node scripts/seed-demo.mjs --remove`); produk asli dengan foto asli terbit.
+- [ ] Tiga kerangka artikel dilengkapi dan diterbitkan, atau dihapus.
 - [ ] Semua `TODO_OWNER` terisi: alamat, jam buka, WhatsApp, domain, logo.
 - [ ] Kebijakan privasi serta syarat dan ketentuan ditinjau oleh penasihat hukum (saat ini masih draf).
 - [ ] Kebijakan beli kembali dan tukar tambah ditulis di **Admin → Toko**.

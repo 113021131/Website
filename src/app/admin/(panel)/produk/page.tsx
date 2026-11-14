@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
-import { buttonPrimary } from "@/components/ui/styles";
+import { buttonPrimary, buttonSecondary } from "@/components/ui/styles";
 import { getDictionary } from "@/i18n";
 import { requireAdmin } from "@/lib/auth/dal";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { ProductList, type ListedProduct } from "./product-list";
 
 const t = getDictionary().admin.products;
+const importCopy = getDictionary().admin.importCsv;
 
 export const metadata: Metadata = { title: t.title };
 
@@ -16,9 +17,14 @@ export default function AdminProductsPage() {
     <>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">{t.title}</h1>
-        <Link href="/admin/produk/baru" className={buttonPrimary}>
-          {t.add}
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/admin/produk/impor" className={buttonSecondary}>
+            {importCopy.open}
+          </Link>
+          <Link href="/admin/produk/baru" className={buttonPrimary}>
+            {t.add}
+          </Link>
+        </div>
       </div>
       <Suspense fallback={<div className="mt-5 h-96 rounded-lg bg-background" />}>
         <Products />

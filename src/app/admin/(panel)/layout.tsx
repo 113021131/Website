@@ -17,6 +17,8 @@ export default function AdminPanelLayout({ children }: LayoutProps<"/admin">) {
   const links = [
     { href: "/admin/harga", label: t.nav.harga },
     { href: "/admin/produk", label: t.nav.produk },
+    { href: "/admin/leads", label: t.nav.leads },
+    { href: "/admin/artikel", label: t.nav.artikel },
     { href: "/admin/toko", label: t.nav.toko },
   ];
 

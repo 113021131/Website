@@ -14,28 +14,6 @@ const nextConfig: NextConfig = {
       ? [{ protocol: "https", hostname: supabaseHost, pathname: "/storage/v1/object/public/**" }]
       : [],
   },
-  /**
-   * Locale routing. Public pages live under app/[locale]. Indonesian is served at
-   * the plain URL (/harga-emas is rewritten to /id/harga-emas internally) and
-   * English at /en/…. The /id/… form is never shown: it redirects to the plain URL.
-   */
-  async redirects() {
-    return [
-      { source: "/id", destination: "/", permanent: true },
-      { source: "/id/:path*", destination: "/:path*", permanent: true },
-    ];
-  },
-  async rewrites() {
-    return [
-      { source: "/", destination: "/id" },
-      // Everything that is not already localised, not the admin or dev tools,
-      // not a framework path, and not a file with an extension.
-      {
-        source: "/:path((?!en$|en/|id$|id/|admin|dev/|_next|opengraph-image|[^/]*\\.[a-z0-9]+$).*)",
-        destination: "/id/:path",
-      },
-    ];
-  },
   turbopack: {
     rules: {
       "*.css": {
