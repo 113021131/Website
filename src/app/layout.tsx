@@ -3,6 +3,7 @@ import { Besley, Plus_Jakarta_Sans } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { siteConfig } from "@/config/owner";
 import { getDictionary } from "@/i18n";
+import { allowIndexing } from "@/lib/seo";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -24,8 +25,9 @@ export const metadata: Metadata = {
     template: `%s | ${siteConfig.name}`,
   },
   description: "Harga emas hari ini per gram dan perhiasan emas dari Toko Sinar Mas.",
-  // The site is not ready for search engines until Phase 1 ships real pages.
-  robots: { index: false, follow: false },
+  robots: allowIndexing ? { index: true, follow: true } : { index: false, follow: false },
+  openGraph: { type: "website", locale: "id_ID", siteName: siteConfig.name },
+  alternates: { canonical: "/" },
 };
 
 export const viewport: Viewport = {

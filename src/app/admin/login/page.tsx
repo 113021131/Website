@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { Wordmark } from "@/components/brand/wordmark";
 import { siteConfig } from "@/config/owner";
 import { getDictionary } from "@/i18n";
-import { LoginForm, LoginReason } from "./login-form";
+import { LinkForm, LoginReason, PasswordForm } from "./login-form";
 
 export const metadata: Metadata = {
   title: "Masuk admin",
@@ -22,7 +22,8 @@ export default function AdminLoginPage() {
         <Suspense fallback={null}>
           <LoginReason t={t} />
         </Suspense>
-        <LoginForm t={t} />
+        <PasswordForm t={t} />
+        <LinkForm t={t} />
       </div>
     </main>
   );
