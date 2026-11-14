@@ -5,18 +5,18 @@ import { WhatsAppButton } from "@/components/whatsapp-button";
 import { ownerValue } from "@/config/owner";
 import { fill, getDictionary } from "@/i18n";
 import { getPrimaryStore } from "@/lib/data/public";
-import { breadcrumbJsonLd, parseOpeningHours, storeJsonLd } from "@/lib/seo";
+import { breadcrumbJsonLd, parseOpeningHours, storeJsonLd, pageMetadata } from "@/lib/seo";
 
-const t = getDictionary();
-const s = t.store;
+type Props = PageProps<"/[locale]/toko">;
 
-export const metadata: Metadata = {
-  title: s.metaTitle,
-  description: s.metaDescription,
-  alternates: { canonical: "/toko" },
-};
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const t = getDictionary((await params).locale);
+  return pageMetadata(t, "/toko", t.store.metaTitle, t.store.metaDescription);
+}
 
-export default async function StorePage() {
+export default async function StorePage({ params }: Props) {
+  const t = getDictionary((await params).locale);
+  const s = t.store;
   const store = await getPrimaryStore();
   const address = ownerValue(store.address);
   const locality = [ownerValue(store.city), ownerValue(store.province), ownerValue(store.postal_code)].filter(Boolean).join(", ");
@@ -29,12 +29,12 @@ export default async function StorePage() {
 
   return (
     <div className={`${container} py-8 md:py-12`}>
-      <JsonLd data={storeJsonLd(store)} />
+      <JsonLd data={storeJsonLd(store, t.locale)} />
       <JsonLd
         data={breadcrumbJsonLd([
           { name: t.common.home, path: "/" },
           { name: t.nav.store, path: "/toko" },
-        ])}
+        ], t.locale)}
       />
       <h1 className="text-[1.875rem] font-semibold md:text-[2.5rem]">{s.title}</h1>
 

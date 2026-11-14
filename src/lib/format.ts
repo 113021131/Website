@@ -45,11 +45,11 @@ const TIMEZONE_ABBREVIATIONS: Record<string, string> = {
  * "14 Nov 2026 09:30 WIB". Input is a UTC ISO timestamp; output is shop-local time.
  * Uses Intl, so call it on the server and pass the string down.
  */
-export function formatDateTime(isoUtc: string, timeZone = "Asia/Jakarta"): string {
+export function formatDateTime(isoUtc: string, timeZone = "Asia/Jakarta", locale: "id" | "en" = "id"): string {
   const date = new Date(isoUtc);
   if (Number.isNaN(date.getTime())) return "";
 
-  const parts = new Intl.DateTimeFormat("id-ID", {
+  const parts = new Intl.DateTimeFormat(locale === "en" ? "en-GB" : "id-ID", {
     timeZone,
     day: "2-digit",
     month: "short",

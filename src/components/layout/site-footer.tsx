@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { Wordmark } from "@/components/brand/wordmark";
 import { ownerValue } from "@/config/owner";
-import type { Dictionary } from "@/i18n";
+import { localePath, type Dictionary } from "@/i18n";
+import { LocaleSwitch } from "./locale-switch";
 import type { Store } from "@/lib/data/public";
 import { navLinks } from "./site-header";
 
@@ -18,6 +19,7 @@ export function SiteFooter({ store, t }: { store: Store; t: Dictionary }) {
           <Wordmark name={store.name} />
           <p className="text-muted-foreground mt-3 max-w-[32ch]">{tagline}</p>
           {address ? <p className="mt-3 max-w-[40ch] break-words">{address}</p> : null}
+          <LocaleSwitch locale={t.locale} label={t.common.switchLocale} ariaLabel={t.common.switchLocaleLabel} />
         </div>
         <nav aria-label={t.footer.explore}>
           <h2 className="font-sans text-sm font-semibold">{t.footer.explore}</h2>
@@ -35,12 +37,17 @@ export function SiteFooter({ store, t }: { store: Store; t: Dictionary }) {
           <h2 className="font-sans text-sm font-semibold">{t.footer.legal}</h2>
           <ul className="mt-2">
             <li>
-              <Link href="/privasi" className="flex min-h-11 items-center underline-offset-4 hover:underline">
+              <Link href={localePath(t.locale, "/privasi")} className="flex min-h-11 items-center underline-offset-4 hover:underline">
                 {t.footer.privacy}
               </Link>
             </li>
             <li>
-              <Link href="/syarat" className="flex min-h-11 items-center underline-offset-4 hover:underline">
+              <Link href={localePath(t.locale, "/artikel")} className="flex min-h-11 items-center underline-offset-4 hover:underline">
+                {t.nav.articles}
+              </Link>
+            </li>
+            <li>
+              <Link href={localePath(t.locale, "/syarat")} className="flex min-h-11 items-center underline-offset-4 hover:underline">
                 {t.footer.terms}
               </Link>
             </li>

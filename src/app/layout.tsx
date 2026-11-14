@@ -21,13 +21,12 @@ const besley = Besley({
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: `${siteConfig.name} — Toko Emas`,
+    default: siteConfig.name,
     template: `%s | ${siteConfig.name}`,
   },
-  description: "Harga emas hari ini per gram dan perhiasan emas dari Toko Sinar Mas.",
+  description: "Harga emas hari ini per gram dan perhiasan emas dari Toko Emas Sinar Mas.",
   robots: allowIndexing ? { index: true, follow: true } : { index: false, follow: false },
   openGraph: { type: "website", locale: "id_ID", siteName: siteConfig.name },
-  alternates: { canonical: "/" },
 };
 
 export const viewport: Viewport = {

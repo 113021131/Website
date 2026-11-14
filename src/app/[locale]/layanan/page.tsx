@@ -5,18 +5,18 @@ import { WhatsAppButton } from "@/components/whatsapp-button";
 import { ownerValue } from "@/config/owner";
 import { fill, getDictionary } from "@/i18n";
 import { getPrimaryStore } from "@/lib/data/public";
-import { breadcrumbJsonLd } from "@/lib/seo";
+import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
 
-const t = getDictionary();
-const s = t.services;
+type Props = PageProps<"/[locale]/layanan">;
 
-export const metadata: Metadata = {
-  title: s.metaTitle,
-  description: s.metaDescription,
-  alternates: { canonical: "/layanan" },
-};
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const t = getDictionary((await params).locale);
+  return pageMetadata(t, "/layanan", t.services.metaTitle, t.services.metaDescription);
+}
 
-export default async function ServicesPage() {
+export default async function ServicesPage({ params }: Props) {
+  const t = getDictionary((await params).locale);
+  const s = t.services;
   const store = await getPrimaryStore();
   const whatsapp = ownerValue(store.whatsapp);
 
@@ -26,7 +26,7 @@ export default async function ServicesPage() {
         data={breadcrumbJsonLd([
           { name: t.common.home, path: "/" },
           { name: t.nav.services, path: "/layanan" },
-        ])}
+        ], t.locale)}
       />
       <h1 className="text-[1.875rem] font-semibold md:text-[2.5rem]">{s.title}</h1>
       <p className="text-muted-foreground mt-3 max-w-[60ch] text-lg">{s.lead}</p>

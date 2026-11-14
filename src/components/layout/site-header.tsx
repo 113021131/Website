@@ -1,16 +1,18 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { Wordmark } from "@/components/brand/wordmark";
-import type { Dictionary } from "@/i18n";
+import { localePath, type Dictionary } from "@/i18n";
 import { MobileMenu, type NavLink } from "./mobile-menu";
 
 export function navLinks(t: Dictionary): NavLink[] {
+  const to = (path: string) => localePath(t.locale, path);
   return [
-    { href: "/harga-emas", label: t.nav.prices },
-    { href: "/katalog", label: t.nav.catalog },
-    { href: "/layanan", label: t.nav.services },
-    { href: "/kepercayaan", label: t.nav.trust },
-    { href: "/toko", label: t.nav.store },
+    { href: to("/harga-emas"), label: t.nav.prices },
+    { href: to("/katalog"), label: t.nav.catalog },
+    { href: to("/kalkulator"), label: t.nav.calculator },
+    { href: to("/layanan"), label: t.nav.services },
+    { href: to("/kepercayaan"), label: t.nav.trust },
+    { href: to("/toko"), label: t.nav.store },
   ];
 }
 
@@ -20,7 +22,7 @@ export function SiteHeader({ brand, t }: { brand: string; t: Dictionary }) {
   return (
     <header className="on-dark bg-board text-board-foreground">
       <div className="page-gutter relative mx-auto flex h-14 w-full max-w-[72rem] items-center justify-between gap-4">
-        <Link href="/" className="-ml-1 flex min-h-12 items-center rounded-md px-1">
+        <Link href={localePath(t.locale, "/")} className="-ml-1 flex min-h-12 items-center rounded-md px-1">
           <Wordmark name={brand} tone="dark" />
         </Link>
         <nav aria-label={t.common.menu} className="hidden md:block">

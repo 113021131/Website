@@ -5,18 +5,18 @@ import { WhatsAppButton } from "@/components/whatsapp-button";
 import { ownerValue } from "@/config/owner";
 import { fill, getDictionary } from "@/i18n";
 import { getPrimaryStore, getSiteSettings, getTestimonials } from "@/lib/data/public";
-import { breadcrumbJsonLd, faqJsonLd } from "@/lib/seo";
+import { breadcrumbJsonLd, faqJsonLd, pageMetadata } from "@/lib/seo";
 
-const t = getDictionary();
-const c = t.trust;
+type Props = PageProps<"/[locale]/kepercayaan">;
 
-export const metadata: Metadata = {
-  title: c.metaTitle,
-  description: c.metaDescription,
-  alternates: { canonical: "/kepercayaan" },
-};
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const t = getDictionary((await params).locale);
+  return pageMetadata(t, "/kepercayaan", t.trust.metaTitle, t.trust.metaDescription);
+}
 
-export default async function TrustPage() {
+export default async function TrustPage({ params }: Props) {
+  const t = getDictionary((await params).locale);
+  const c = t.trust;
   const [store, settings, testimonials] = await Promise.all([getPrimaryStore(), getSiteSettings(), getTestimonials()]);
   const texts = (settings.trust_texts ?? {}) as Record<string, string | null>;
   const policy = ownerValue(texts.policy);
@@ -30,7 +30,7 @@ export default async function TrustPage() {
         data={breadcrumbJsonLd([
           { name: t.common.home, path: "/" },
           { name: t.nav.trust, path: "/kepercayaan" },
-        ])}
+        ], t.locale)}
       />
 
       <div className={`${container} py-8 md:py-12`}>

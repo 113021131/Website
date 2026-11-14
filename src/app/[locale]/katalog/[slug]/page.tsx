@@ -12,7 +12,7 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { buttonSecondary, container } from "@/components/ui/styles";
 import { WhatsAppButton } from "@/components/whatsapp-button";
 import { ownerValue } from "@/config/owner";
-import { fill, getDictionary } from "@/i18n";
+import { fill, getDictionary, localePath } from "@/i18n";
 import { catalogHref, estimateProduct, priceProducts, roundingFromSettings, similarProducts } from "@/lib/catalog";
 import {
   getCatalogProducts,
@@ -23,12 +23,9 @@ import {
   readFeatureFlags,
 } from "@/lib/data/public";
 import { formatDateTime, formatIdr, formatWeight } from "@/lib/format";
-import { absoluteUrl, breadcrumbJsonLd, productJsonLd } from "@/lib/seo";
+import { absoluteUrl, breadcrumbJsonLd, localeAlternates, productJsonLd } from "@/lib/seo";
 
-const t = getDictionary();
-const p = t.product;
-
-type Props = PageProps<"/katalog/[slug]">;
+type Props = PageProps<"/[locale]/katalog/[slug]">;
 
 export async function generateStaticParams() {
   const products = await getCatalogProducts();
@@ -37,9 +34,10 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug, locale } = await params;
+  const t = getDictionary(locale);
   const product = await getProductBySlug(slug);
-  if (!product) return { title: p.notFoundTitle, robots: { index: false } };
+  if (!product) return { title: t.product.notFoundTitle, robots: { index: false } };
 
   const description =
     product.description?.slice(0, 155) ??
@@ -47,11 +45,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: product.name,
     description,
-    alternates: { canonical: `/katalog/${product.slug}` },
+    alternates: localeAlternates(t.locale, `/katalog/${product.slug}`),
     openGraph: {
       title: product.name,
       description,
-      url: `/katalog/${product.slug}`,
+      url: localePath(t.locale, `/katalog/${product.slug}`),
       ...(product.images[0] ? { images: [{ url: product.images[0].url }] } : {}),
     },
   };
@@ -66,7 +64,10 @@ export default function ProductPage({ params }: Props) {
 }
 
 async function ProductDetail({ params }: Pick<Props, "params">) {
-  const { slug } = await params;
+  const { slug, locale } = await params;
+  const t = getDictionary(locale);
+  const p = t.product;
+  const to = (path: string) => localePath(t.locale, path);
   const [product, board, settings, store, all] = await Promise.all([
     getProductBySlug(slug),
     getPriceBoard(),
@@ -80,10 +81,10 @@ async function ProductDetail({ params }: Pick<Props, "params">) {
   const estimate = estimateProduct(product, board, rounding);
   const priced = { ...product, estimate };
   const flags = readFeatureFlags(settings);
-  const updatedLabel = board.updatedAt ? formatDateTime(board.updatedAt, board.timeZone) : "";
+  const updatedLabel = board.updatedAt ? formatDateTime(board.updatedAt, board.timeZone, t.locale) : "";
   const unavailable = product.status !== "published";
   const similar = similarProducts(priceProducts(all, board, rounding), product);
-  const url = absoluteUrl(`/katalog/${product.slug}`);
+  const url = absoluteUrl(to(`/katalog/${product.slug}`));
   const policy = ownerValue(((settings.trust_texts ?? {}) as Record<string, string>).policy);
 
   const message = estimate
@@ -114,14 +115,14 @@ async function ProductDetail({ params }: Pick<Props, "params">) {
 
   return (
     <div className={`${container} py-5 md:py-10`}>
-      <JsonLd data={productJsonLd(priced, store.name)} />
-      <JsonLd data={breadcrumbJsonLd([...crumbs, { name: product.name, path: `/katalog/${product.slug}` }])} />
+      <JsonLd data={productJsonLd(priced, store.name, t.locale)} />
+      <JsonLd data={breadcrumbJsonLd([...crumbs, { name: product.name, path: `/katalog/${product.slug}` }], t.locale)} />
 
       <nav aria-label={t.common.breadcrumb} className="text-muted-foreground text-sm">
         <ol className="flex flex-wrap items-center gap-x-1.5">
           {crumbs.map((crumb) => (
             <li key={crumb.path} className="flex items-center gap-x-1.5">
-              <Link href={crumb.path} className="flex min-h-11 items-center underline-offset-4 hover:underline">
+              <Link href={to(crumb.path)} className="flex min-h-11 items-center underline-offset-4 hover:underline">
                 {crumb.name}
               </Link>
               <span aria-hidden="true">/</span>
@@ -263,7 +264,7 @@ async function ProductDetail({ params }: Pick<Props, "params">) {
               {t.home.trustItems.map((item) => (
                 <li key={item.anchor}>
                   <Link
-                    href={`/kepercayaan#${item.anchor}`}
+                    href={to(`/kepercayaan#${item.anchor}`)}
                     className="text-brand flex min-h-11 items-center font-semibold underline-offset-4 hover:underline"
                   >
                     {item.title}

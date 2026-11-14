@@ -1,5 +1,7 @@
+import type { Metadata } from "next";
 import { z } from "zod";
 import { ownerValue, siteConfig } from "@/config/owner";
+import { defaultLocale, localePath, locales, type Dictionary, type Locale } from "@/i18n";
 import type { PricedProduct } from "@/lib/catalog";
 import type { Store } from "@/lib/data/public";
 
@@ -11,6 +13,26 @@ export const allowIndexing = process.env.NEXT_PUBLIC_ALLOW_INDEXING === "true";
 
 export function absoluteUrl(path = "/"): string {
   return new URL(path, siteConfig.url).toString();
+}
+
+/** Canonical URL of this page plus its translations, for <link rel="alternate" hreflang>. */
+export function localeAlternates(locale: Locale, path: string): NonNullable<Metadata["alternates"]> {
+  return {
+    canonical: localePath(locale, path),
+    languages: {
+      ...Object.fromEntries(locales.map((other) => [other, localePath(other, path)])),
+      "x-default": localePath(defaultLocale, path),
+    },
+  };
+}
+
+export function pageMetadata(t: Dictionary, path: string, title: Metadata["title"], description: string): Metadata {
+  return {
+    title,
+    description,
+    alternates: localeAlternates(t.locale, path),
+    openGraph: { locale: t.locale === "en" ? "en_US" : "id_ID", url: localePath(t.locale, path) },
+  };
 }
 
 const openingHoursSchema = z.array(
@@ -46,7 +68,7 @@ export function socialLinks(store: Store): string[] {
 const SCHEMA_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 /** JewelryStore structured data. Fields the owner has not supplied are left out, never invented. */
-export function storeJsonLd(store: Store) {
+export function storeJsonLd(store: Store, locale: Locale = defaultLocale) {
   const street = ownerValue(store.address);
   const hours = parseOpeningHours(store.opening_hours).filter((entry) => !entry.closed);
   const sameAs = socialLinks(store);
@@ -56,7 +78,7 @@ export function storeJsonLd(store: Store) {
     "@context": "https://schema.org",
     "@type": "JewelryStore",
     name: store.name,
-    url: absoluteUrl("/"),
+    url: absoluteUrl(localePath(locale, "/")),
     ...(phone ? { telephone: phone } : {}),
     ...(street
       ? {
@@ -101,7 +123,7 @@ export function faqJsonLd(items: readonly { q: string; a: string }[]) {
   };
 }
 
-export function breadcrumbJsonLd(items: { name: string; path: string }[]) {
+export function breadcrumbJsonLd(items: { name: string; path: string }[], locale: Locale = defaultLocale) {
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -109,12 +131,13 @@ export function breadcrumbJsonLd(items: { name: string; path: string }[]) {
       "@type": "ListItem",
       position: index + 1,
       name: item.name,
-      item: absoluteUrl(item.path),
+      item: absoluteUrl(localePath(locale, item.path)),
     })),
   };
 }
 
-export function productJsonLd(product: PricedProduct, brand: string) {
+export function productJsonLd(product: PricedProduct, brand: string, locale: Locale = defaultLocale) {
+  const url = absoluteUrl(localePath(locale, `/katalog/${product.slug}`));
   const availability =
     product.status === "published"
       ? "https://schema.org/InStoreOnly"
@@ -126,7 +149,7 @@ export function productJsonLd(product: PricedProduct, brand: string) {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
-    url: absoluteUrl(`/katalog/${product.slug}`),
+    url,
     ...(product.description ? { description: product.description } : {}),
     ...(product.images.length > 0 ? { image: product.images.map((image) => image.url) } : {}),
     ...(product.categoryName ? { category: product.categoryName } : {}),
@@ -141,7 +164,7 @@ export function productJsonLd(product: PricedProduct, brand: string) {
             priceCurrency: "IDR",
             price: product.estimate.totalIdr,
             availability,
-            url: absoluteUrl(`/katalog/${product.slug}`),
+            url,
           },
         }
       : {}),

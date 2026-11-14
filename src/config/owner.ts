@@ -17,9 +17,12 @@ export function ownerValue(value: string | null | undefined): string | null {
 
 export const siteConfig = {
   /** Spelling to be confirmed by the owner. */
-  name: "Toko Sinar Mas",
+  name: "Toko Emas Sinar Mas",
   locale: "id-ID",
   defaultTimeZone: "Asia/Jakarta",
   /** TODO_OWNER: production domain. Set NEXT_PUBLIC_SITE_URL in the environment. */
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  url:
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    // On Vercel previews the deployment's own URL is the right origin.
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"),
 } as const;

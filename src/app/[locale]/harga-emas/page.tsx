@@ -6,23 +6,24 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { buttonSecondary, container } from "@/components/ui/styles";
 import { WhatsAppButton } from "@/components/whatsapp-button";
 import { ownerValue } from "@/config/owner";
-import { fill, getDictionary } from "@/i18n";
+import { fill, getDictionary, localePath } from "@/i18n";
 import { roundingFromSettings } from "@/lib/catalog";
 import { getPriceBoard, getPrimaryStore, getSiteSettings } from "@/lib/data/public";
 import { formatDateTime, formatIdr, formatWeight } from "@/lib/format";
 import { calculatePrice } from "@/lib/pricing/calculate";
-import { breadcrumbJsonLd, faqJsonLd } from "@/lib/seo";
+import { breadcrumbJsonLd, faqJsonLd, pageMetadata } from "@/lib/seo";
 
-const t = getDictionary();
-const p = t.pricePage;
+type Props = PageProps<"/[locale]/harga-emas">;
 
-export const metadata: Metadata = {
-  title: p.metaTitle,
-  description: p.metaDescription,
-  alternates: { canonical: "/harga-emas" },
-};
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const t = getDictionary((await params).locale);
+  return pageMetadata(t, "/harga-emas", t.pricePage.metaTitle, t.pricePage.metaDescription);
+}
 
-export default async function GoldPricePage() {
+export default async function GoldPricePage({ params }: Props) {
+  const t = getDictionary((await params).locale);
+  const p = t.pricePage;
+  const to = (path: string) => localePath(t.locale, path);
   const [board, store, settings] = await Promise.all([getPriceBoard(), getPrimaryStore(), getSiteSettings()]);
 
   // A worked example from today's real numbers, so the formula is not abstract.
@@ -45,7 +46,7 @@ export default async function GoldPricePage() {
         data={breadcrumbJsonLd([
           { name: t.common.home, path: "/" },
           { name: t.nav.prices, path: "/harga-emas" },
-        ])}
+        ], t.locale)}
       />
 
       <div className={`${container} grid gap-x-14 gap-y-8 py-8 md:grid-cols-[1.1fr_1fr] md:py-12`}>
@@ -55,7 +56,7 @@ export default async function GoldPricePage() {
           </h1>
           {board.updatedAt ? (
             <p className="price text-gold-ink mt-1.5 text-sm font-semibold">
-              {t.price.updated}: <time dateTime={board.updatedAt}>{formatDateTime(board.updatedAt, board.timeZone)}</time>
+              {t.price.updated}: <time dateTime={board.updatedAt}>{formatDateTime(board.updatedAt, board.timeZone, t.locale)}</time>
             </p>
           ) : null}
           <p className="text-muted-foreground mt-3 max-w-[60ch]">{p.lead}</p>
@@ -77,7 +78,7 @@ export default async function GoldPricePage() {
                 missingLabel={t.cta.whatsappMissing}
                 placement="price_page"
               />
-              <Link href="/katalog" className={buttonSecondary}>
+              <Link href={to("/katalog")} className={buttonSecondary}>
                 {t.cta.catalog}
               </Link>
             </div>

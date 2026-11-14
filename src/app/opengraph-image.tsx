@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { siteConfig } from "@/config/owner";
 
-export const alt = "Toko Sinar Mas — harga emas hari ini dan perhiasan emas";
+export const alt = "Toko Emas Sinar Mas: harga emas hari ini dan perhiasan emas";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

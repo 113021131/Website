@@ -53,7 +53,7 @@ test.describe("home", () => {
     await page.goto("/");
     const blocks = await page.locator('script[type="application/ld+json"]').allTextContents();
     const store = blocks.map((block) => JSON.parse(block)).find((data) => data["@type"] === "JewelryStore");
-    expect(store.name).toBe("Toko Sinar Mas");
+    expect(store.name).toBe("Toko Emas Sinar Mas");
     expect(JSON.stringify(store)).not.toContain("TODO_OWNER");
   });
 

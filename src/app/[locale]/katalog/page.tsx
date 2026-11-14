@@ -7,7 +7,7 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { buttonPrimary, buttonSecondary, container, fieldInput, fieldLabel } from "@/components/ui/styles";
 import { WhatsAppButton } from "@/components/whatsapp-button";
 import { ownerValue } from "@/config/owner";
-import { fill, getDictionary } from "@/i18n";
+import { fill, getDictionary, localePath, type Locale } from "@/i18n";
 import {
   catalogHref,
   filterCatalog,
@@ -25,36 +25,39 @@ import {
   getPrimaryStore,
   getSiteSettings,
 } from "@/lib/data/public";
-import { breadcrumbJsonLd } from "@/lib/seo";
+import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
 
-const t = getDictionary();
-const c = t.catalog;
+type Props = PageProps<"/[locale]/katalog">;
 
-export const metadata: Metadata = {
-  title: c.metaTitle,
-  description: c.metaDescription,
-  alternates: { canonical: "/katalog" },
-};
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const t = getDictionary((await params).locale);
+  return pageMetadata(t, "/katalog", t.catalog.metaTitle, t.catalog.metaDescription);
+}
 
-export default function CatalogPage({ searchParams }: PageProps<"/katalog">) {
+export default async function CatalogPage({ params, searchParams }: Props) {
+  const t = getDictionary((await params).locale);
+  const c = t.catalog;
   return (
     <div className={`${container} py-8 md:py-12`}>
       <JsonLd
         data={breadcrumbJsonLd([
           { name: t.common.home, path: "/" },
           { name: t.nav.catalog, path: "/katalog" },
-        ])}
+        ], t.locale)}
       />
       <h1 className="text-[1.875rem] font-semibold md:text-[2.5rem]">{c.title}</h1>
       {/* The filters live in the URL, so results are read at request time behind this boundary. */}
       <Suspense fallback={<CatalogSkeleton />}>
-        <CatalogResults searchParams={searchParams} />
+        <CatalogResults searchParams={searchParams} locale={t.locale} />
       </Suspense>
     </div>
   );
 }
 
-async function CatalogResults({ searchParams }: Pick<PageProps<"/katalog">, "searchParams">) {
+async function CatalogResults({ searchParams, locale }: Pick<Props, "searchParams"> & { locale: Locale }) {
+  const t = getDictionary(locale);
+  const c = t.catalog;
+  const to = (path: string) => localePath(t.locale, path);
   const query = parseCatalogQuery(await searchParams);
   const [board, settings, categories, karats, products, store] = await Promise.all([
     getPriceBoard(),
@@ -71,7 +74,7 @@ async function CatalogResults({ searchParams }: Pick<PageProps<"/katalog">, "sea
 
   return (
     <>
-      <Form action="/katalog" className="mt-5">
+      <Form action={to("/katalog")} className="mt-5">
         <label htmlFor="catalog-q" className={fieldLabel}>
           {c.search}
         </label>
@@ -180,7 +183,7 @@ async function CatalogResults({ searchParams }: Pick<PageProps<"/katalog">, "sea
             {c.apply}
           </button>
           {filtersActive ? (
-            <Link href="/katalog" className={buttonSecondary}>
+            <Link href={to("/katalog")} className={buttonSecondary}>
               {c.reset}
             </Link>
           ) : null}
@@ -205,7 +208,7 @@ async function CatalogResults({ searchParams }: Pick<PageProps<"/katalog">, "sea
           <p className="text-muted-foreground mx-auto mt-2 max-w-[40ch]">{c.emptyBody}</p>
           <div className="mt-5 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             {filtersActive ? (
-              <Link href="/katalog" className={buttonSecondary}>
+              <Link href={to("/katalog")} className={buttonSecondary}>
                 {c.reset}
               </Link>
             ) : null}
@@ -224,7 +227,7 @@ async function CatalogResults({ searchParams }: Pick<PageProps<"/katalog">, "sea
         <nav aria-label={fill(c.page, { page: String(result.page), total: String(result.pageCount) })} className="mt-8">
           <div className="flex items-center justify-between gap-3">
             {result.page > 1 ? (
-              <Link href={catalogHref({ ...query, page: result.page - 1 })} className={buttonSecondary} rel="prev">
+              <Link href={to(catalogHref({ ...query, page: result.page - 1 }))} className={buttonSecondary} rel="prev">
                 {c.prev}
               </Link>
             ) : (
@@ -234,7 +237,7 @@ async function CatalogResults({ searchParams }: Pick<PageProps<"/katalog">, "sea
               {fill(c.page, { page: String(result.page), total: String(result.pageCount) })}
             </span>
             {result.page < result.pageCount ? (
-              <Link href={catalogHref({ ...query, page: result.page + 1 })} className={buttonSecondary} rel="next">
+              <Link href={to(catalogHref({ ...query, page: result.page + 1 }))} className={buttonSecondary} rel="next">
                 {c.next}
               </Link>
             ) : (

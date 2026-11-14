@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { Dictionary } from "@/i18n";
+import { localePath, type Dictionary } from "@/i18n";
 import type { PricedProduct } from "@/lib/catalog";
 import { formatIdr, formatWeight } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -63,7 +63,7 @@ export function ProductCard({
       <div className="mt-2.5 min-h-[2.25rem]">
         <h3 className="line-clamp-2 font-sans text-sm leading-[1.125rem] font-semibold break-words">
           {/* The stretched link makes the whole card one tap target. */}
-          <Link href={`/katalog/${product.slug}`} className="focus-visible:after:outline-ring after:absolute after:inset-0 after:rounded-lg focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2">
+          <Link href={localePath(t.locale, `/katalog/${product.slug}`)} className="focus-visible:after:outline-ring after:absolute after:inset-0 after:rounded-lg focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2">
             {product.name}
           </Link>
         </h3>

@@ -16,7 +16,7 @@ async function signIn(page: Page) {
   await page.getByRole("textbox", { name: "Email" }).first().fill(email!);
   await page.getByLabel("Kata sandi").fill(password!);
   await page.getByRole("button", { name: "Masuk", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Admin Toko Sinar Mas" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Admin Toko Emas Sinar Mas" })).toBeVisible();
 }
 
 function digits(text: string) {

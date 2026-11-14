@@ -8,21 +8,22 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { buttonOnDark, buttonSecondary, container } from "@/components/ui/styles";
 import { WhatsAppButton } from "@/components/whatsapp-button";
 import { ownerValue } from "@/config/owner";
-import { fill, getDictionary } from "@/i18n";
+import { fill, getDictionary, localePath } from "@/i18n";
 import { catalogHref, priceProducts, roundingFromSettings } from "@/lib/catalog";
 import { getCatalogProducts, getCategories, getPriceBoard, getPrimaryStore, getSiteSettings } from "@/lib/data/public";
 import { formatDateTime } from "@/lib/format";
-import { storeJsonLd } from "@/lib/seo";
+import { pageMetadata, storeJsonLd } from "@/lib/seo";
 
-const t = getDictionary();
+type Props = PageProps<"/[locale]">;
 
-export const metadata: Metadata = {
-  title: { absolute: t.home.metaTitle },
-  description: t.home.metaDescription,
-  alternates: { canonical: "/" },
-};
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const t = getDictionary((await params).locale);
+  return pageMetadata(t, "/", { absolute: t.home.metaTitle }, t.home.metaDescription);
+}
 
-export default async function HomePage() {
+export default async function HomePage({ params }: Props) {
+  const t = getDictionary((await params).locale);
+  const to = (path: string) => localePath(t.locale, path);
   const [board, store, settings, categories, products] = await Promise.all([
     getPriceBoard(),
     getPrimaryStore(),
@@ -45,7 +46,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <JsonLd data={storeJsonLd(store)} />
+      <JsonLd data={storeJsonLd(store, t.locale)} />
 
       {/* Hero: the shop's price board. Continues the header's maroon surface. */}
       <div className="on-dark bg-board text-board-foreground">
@@ -55,7 +56,7 @@ export default async function HomePage() {
             {board.updatedAt ? (
               <p className="price text-board-accent mt-1.5 text-sm">
                 {t.price.updated}:{" "}
-                <time dateTime={board.updatedAt}>{formatDateTime(board.updatedAt, board.timeZone)}</time>
+                <time dateTime={board.updatedAt}>{formatDateTime(board.updatedAt, board.timeZone, t.locale)}</time>
               </p>
             ) : null}
             <p className="text-board-muted mt-4 hidden max-w-[28rem] text-lg md:block">{t.home.lead}</p>
@@ -74,7 +75,7 @@ export default async function HomePage() {
                 missingLabel={t.cta.whatsappMissing}
                 placement="home_hero"
               />
-              <Link href="/katalog" className={buttonOnDark}>
+              <Link href={to("/katalog")} className={buttonOnDark}>
                 {t.cta.catalog}
               </Link>
             </div>
@@ -92,7 +93,7 @@ export default async function HomePage() {
           {categories.map((category) => (
             <li key={category.slug}>
               <Link
-                href={catalogHref({ category: category.slug })}
+                href={to(catalogHref({ category: category.slug }))}
                 className="bg-surface-muted hover:bg-surface-tint flex h-full flex-col items-center gap-2 rounded-lg px-3 py-5 text-center"
               >
                 <JewelArt kind={toJewelKind(category.slug)} className="size-14" />
@@ -108,7 +109,7 @@ export default async function HomePage() {
           <h2 id="home-featured" className="text-2xl font-semibold">
             {t.home.featuredTitle}
           </h2>
-          <Link href="/katalog" className="text-brand inline-flex min-h-11 shrink-0 items-center gap-1 font-semibold">
+          <Link href={to("/katalog")} className="text-brand inline-flex min-h-11 shrink-0 items-center gap-1 font-semibold">
             {t.common.seeAll}
             <ArrowRightIcon className="size-4" aria-hidden="true" />
           </Link>
@@ -135,7 +136,7 @@ export default async function HomePage() {
             {t.home.trustItems.map((item) => (
               <li key={item.anchor}>
                 <Link
-                  href={`/kepercayaan#${item.anchor}`}
+                  href={to(`/kepercayaan#${item.anchor}`)}
                   className="hover:border-brand flex h-full flex-col rounded-lg border bg-background p-4"
                 >
                   <span className="font-display text-lg font-semibold">{item.title}</span>
@@ -160,7 +161,7 @@ export default async function HomePage() {
             missingLabel={t.cta.whatsappMissing}
             placement="home_store"
           />
-          <Link href="/toko" className={buttonSecondary}>
+          <Link href={to("/toko")} className={buttonSecondary}>
             {t.store.hours}
           </Link>
           {mapsUrl ? (
