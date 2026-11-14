@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useTransition } from "react";
 import { toast } from "sonner";
 import { buttonPrimary, fieldError, fieldHint, fieldInput, fieldLabel } from "@/components/ui/styles";
 import type { Dictionary } from "@/i18n";
@@ -45,9 +45,20 @@ export function ProductForm({
   occasionLabels: Record<string, string>;
   t: Dictionary["admin"]["products"];
 }) {
-  const [state, formAction, pending] = useActionState(saveProduct.bind(null, productId), initialState);
+  const [state, formAction, actionPending] = useActionState(saveProduct.bind(null, productId), initialState);
+  const [transitionPending, startTransition] = useTransition();
+  const pending = actionPending || transitionPending;
   const formRef = useRef<HTMLFormElement>(null);
   const f = t.fields;
+
+  // Submitted by hand rather than through the `action` prop: React resets an
+  // uncontrolled form after an action, which would wipe every field on a
+  // validation error. This keeps what the admin typed.
+  function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    startTransition(() => formAction(data));
+  }
 
   useEffect(() => {
     if (state.status === "saved") toast.success(state.message);
@@ -67,7 +78,7 @@ export function ProductForm({
     state.errors[key] ? ({ "aria-invalid": true, "aria-describedby": `error-${key}` } as const) : {};
 
   return (
-    <form ref={formRef} action={formAction} noValidate className="space-y-4 rounded-lg border bg-background p-4">
+    <form ref={formRef} onSubmit={onSubmit} noValidate className="space-y-4 rounded-lg border bg-background p-4">
       <div>
         <label htmlFor="product-name" className={fieldLabel}>
           {f.name}

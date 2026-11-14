@@ -24,7 +24,7 @@ export default function AdminPanelLayout({ children }: LayoutProps<"/admin">) {
     <div className="bg-surface-muted flex flex-1 flex-col">
       <header className="border-b bg-background">
         <div className="page-gutter mx-auto flex min-h-14 w-full max-w-3xl flex-wrap items-center justify-between gap-x-4 py-1">
-          <Link href="/admin" aria-label={t.nav.home} className="flex min-h-12 items-center">
+          <Link href="/admin" className="flex min-h-12 items-center">
             <Wordmark name={siteConfig.name} />
           </Link>
           <Suspense fallback={<span className="bg-surface-muted h-11 w-24 rounded-md" />}>

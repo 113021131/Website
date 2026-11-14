@@ -34,9 +34,19 @@ export function StoreForm({
   feeTypes: Record<string, string>;
   t: Copy;
 }) {
-  const [state, formAction, pending] = useActionState(saveStore, initialState);
+  const [state, formAction, actionPending] = useActionState(saveStore, initialState);
+  const [transitionPending, startTransition] = useTransition();
+  const pending = actionPending || transitionPending;
   const formRef = useRef<HTMLFormElement>(null);
   const f = t.fields;
+
+  // Submitted by hand rather than through the `action` prop, so React does not
+  // reset the fields after the action (see product-form.tsx).
+  function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    startTransition(() => formAction(data));
+  }
 
   useEffect(() => {
     if (state.status === "saved") toast.success(state.message);
@@ -78,7 +88,7 @@ export function StoreForm({
   };
 
   return (
-    <form ref={formRef} action={formAction} noValidate className="space-y-5">
+    <form ref={formRef} onSubmit={onSubmit} noValidate className="space-y-5">
       <section className={sectionClass} aria-labelledby="sec-identity">
         <h2 id="sec-identity" className="text-lg font-semibold">{t.sections.identity}</h2>
         <div className="mt-3 space-y-4">

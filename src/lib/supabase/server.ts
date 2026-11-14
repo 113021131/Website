@@ -1,6 +1,7 @@
 import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 import { assertSupabaseEnv, supabasePublishableKey, supabaseUrl } from "@/lib/env";
 import type { Database } from "./database.types";
 
@@ -11,6 +12,9 @@ import type { Database } from "./database.types";
  */
 export async function createServerSupabase() {
   assertSupabaseEnv();
+  // The auth client reads the clock while it loads the session. connection()
+  // tells Next.js this work belongs to the live request, never to a prerender.
+  await connection();
   const cookieStore = await cookies();
 
   return createServerClient<Database>(supabaseUrl, supabasePublishableKey, {

@@ -50,12 +50,13 @@ export default async function TrustPage() {
             </figcaption>
             <dl className="mt-3">
               {c.suratFields.map((field) => (
-                <div key={field.label} className="border-nota-leader border-b border-dotted py-2.5 last:border-b-0">
-                  <div className="flex items-baseline justify-between gap-3">
-                    <dt className="font-semibold">{field.label}</dt>
-                    <dd className="price font-display">{field.value}</dd>
-                  </div>
-                  <dd className="text-muted-foreground text-sm">{field.note}</dd>
+                <div
+                  key={field.label}
+                  className="border-nota-leader grid grid-cols-[1fr_auto] items-baseline gap-x-3 border-b border-dotted py-2.5 last:border-b-0"
+                >
+                  <dt className="font-semibold">{field.label}</dt>
+                  <dd className="price font-display">{field.value}</dd>
+                  <dd className="text-muted-foreground col-span-2 text-sm">{field.note}</dd>
                 </div>
               ))}
             </dl>

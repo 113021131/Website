@@ -71,9 +71,7 @@ async function EditProduct({ params }: Pick<Props, "params">) {
           </Link>
         </p>
       ) : null}
-      {/* Keyed on updated_at so the form shows what was saved after a refresh. */}
       <ProductForm
-        key={product.updated_at}
         productId={product.id}
         values={values}
         categories={(categories ?? []).map((category) => ({ id: category.id, label: category.name }))}

@@ -89,7 +89,6 @@ async function StoreSettings() {
   return (
     <div className="mt-5 space-y-5">
       <StoreForm
-        key={`${store.updated_at}-${settings.updated_at}`}
         values={values}
         days={dictionary.store.days}
         feeTypes={dictionary.admin.products.fields.feeTypes}
