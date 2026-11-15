@@ -359,7 +359,7 @@ export const id = {
       { karat: "16K", purity: "sekitar 66,7%", use: "Perhiasan dengan harga lebih terjangkau" },
     ],
     karatNote:
-      "Angka di atas adalah perhitungan umum (kadar ÷ 24). Kadar yang berlaku untuk perhiasan Anda adalah yang tertulis di surat emas.",
+      "Angka di tabel adalah perhitungan umum (kadar ÷ 24). Kadar yang berlaku untuk perhiasan Anda adalah yang tertulis di surat emas.",
     policyTitle: "Beli kembali dan tukar tambah",
     policyPending: "Kebijakan lengkap sedang kami tuliskan. Untuk saat ini, silakan tanyakan langsung via WhatsApp.",
     certificatesTitle: "Sertifikat",

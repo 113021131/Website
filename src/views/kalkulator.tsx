@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ViewProps } from "./types";
 import { Estimator } from "@/components/calculator/estimator";
 import { PriceNotices } from "@/components/price/price-table";
+import { PageHero } from "@/components/layout/page-hero";
 import { JsonLd } from "@/components/seo/json-ld";
 import { container } from "@/components/ui/styles";
 import { ownerValue } from "@/config/owner";
@@ -35,7 +36,7 @@ export default async function CalculatorPage({ params }: Props) {
   };
 
   return (
-    <div className={`${container} py-8 md:py-12`}>
+    <>
       <JsonLd
         data={breadcrumbJsonLd(
           [
@@ -45,25 +46,26 @@ export default async function CalculatorPage({ params }: Props) {
           t.locale,
         )}
       />
-      <h1 className="text-[1.875rem] font-semibold md:text-[2.5rem]">{c.title}</h1>
-      <p className="text-muted-foreground mt-3 max-w-[60ch] text-lg">{c.lead}</p>
-      {board.updatedAt ? (
-        <p className="price text-gold-ink mt-2 text-sm font-semibold">
+      <PageHero title={c.title} lead={c.lead}>
+        {board.updatedAt ? (
+          <p className="price border-board-accent text-board-accent mt-4 inline-block rounded-sm border px-2.5 py-1 text-sm font-semibold">
           {t.price.updated}: <time dateTime={board.updatedAt}>{formatDateTime(board.updatedAt, board.timeZone, t.locale)}</time>
         </p>
-      ) : null}
-      <div className="mt-4 max-w-xl">
-        <PriceNotices board={board} t={t} />
-      </div>
-
+        ) : null}
+        <div className="mt-4 max-w-xl empty:hidden">
+          <PriceNotices board={board} t={t} tone="dark" />
+        </div>
+      </PageHero>
+      <div className={`${container} py-8 md:py-12`}>
       {board.rows.length > 0 ? (
-        <div className="mt-6 grid items-start gap-5 md:grid-cols-2">
+        <div className="grid items-start gap-5 md:grid-cols-2">
           <Estimator mode="buy" {...shared} />
           <Estimator mode="sell" {...shared} />
         </div>
       ) : (
-        <p className="mt-6">{t.price.empty}</p>
+        <p>{t.price.empty}</p>
       )}
-    </div>
+      </div>
+    </>
   );
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ViewProps } from "./types";
+import { PageHero, panel, slipPanel } from "@/components/layout/page-hero";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buttonSecondary, container } from "@/components/ui/styles";
 import { WhatsAppButton } from "@/components/whatsapp-button";
@@ -29,7 +30,7 @@ export default async function StorePage({ params }: Props) {
   const hours = parseOpeningHours(store.opening_hours);
 
   return (
-    <div className={`${container} py-8 md:py-12`}>
+    <>
       <JsonLd data={storeJsonLd(store, t.locale)} />
       <JsonLd
         data={breadcrumbJsonLd([
@@ -37,10 +38,10 @@ export default async function StorePage({ params }: Props) {
           { name: t.nav.store, path: "/toko" },
         ], t.locale)}
       />
-      <h1 className="text-[1.875rem] font-semibold md:text-[2.5rem]">{s.title}</h1>
-
-      <div className="mt-6 grid gap-8 md:grid-cols-2">
-        <section aria-labelledby="store-address">
+      <PageHero title={s.title} lead={address ? [address, locality].filter(Boolean).join(", ") : undefined} />
+      <div className={`${container} py-8 md:py-12`}>
+      <div className="grid items-start gap-5 md:grid-cols-2">
+        <section aria-labelledby="store-address" className={panel}>
           <h2 id="store-address" className="text-xl font-semibold">
             {s.address}
           </h2>
@@ -86,12 +87,12 @@ export default async function StorePage({ params }: Props) {
           </div>
         </section>
 
-        <section aria-labelledby="store-hours">
+        <section aria-labelledby="store-hours" className={slipPanel}>
           <h2 id="store-hours" className="text-xl font-semibold">
             {s.hours}
           </h2>
           {hours.length > 0 ? (
-            <table className="mt-2 w-full max-w-sm border-collapse">
+            <table className="mt-2 w-full border-collapse">
               <caption className="sr-only">{s.hours}</caption>
               <tbody>
                 {hours.map((entry) => (
@@ -111,6 +112,7 @@ export default async function StorePage({ params }: Props) {
           )}
         </section>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

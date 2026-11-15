@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ViewProps } from "./types";
+import { PageHero, panel } from "@/components/layout/page-hero";
 import { JsonLd } from "@/components/seo/json-ld";
 import { container } from "@/components/ui/styles";
 import { WhatsAppButton } from "@/components/whatsapp-button";
@@ -34,18 +35,23 @@ export default async function TrustPage({ params }: Props) {
         ], t.locale)}
       />
 
-      <div className={`${container} py-8 md:py-12`}>
-        <h1 className="text-[1.875rem] font-semibold md:text-[2.5rem]">{c.title}</h1>
-        <p className="text-muted-foreground mt-3 max-w-[60ch] text-lg">{c.lead}</p>
+      <PageHero title={c.title} lead={c.lead} />
+      <div className={`${container} space-y-5 py-8 md:py-12`}>
 
-        <section id="surat-emas" aria-labelledby="surat-title" className="mt-10 scroll-mt-4">
-          <h2 id="surat-title" className="text-2xl font-semibold">
-            {c.suratTitle}
-          </h2>
-          <p className="mt-3 max-w-[65ch]">{c.suratBody}</p>
+        <section
+          id="surat-emas"
+          aria-labelledby="surat-title"
+          className={`${panel} scroll-mt-4 lg:grid lg:grid-cols-[1fr_1.1fr] lg:items-start lg:gap-12`}
+        >
+          <div>
+            <h2 id="surat-title" className="text-2xl font-semibold">
+              {c.suratTitle}
+            </h2>
+            <p className="mt-3 max-w-[65ch]">{c.suratBody}</p>
+          </div>
 
           {/* A labelled sample, with zeros instead of amounts, so it cannot be mistaken for a real receipt. */}
-          <figure className="mt-5 max-w-xl rounded-sm border border-t-4 border-t-brand p-4">
+          <figure className="mt-5 rounded-sm border border-t-4 border-t-brand p-4 lg:mt-0">
             <figcaption className="bg-notice text-notice-foreground inline-block rounded-sm px-2 py-0.5 text-sm font-semibold">
               {c.suratSample}
             </figcaption>
@@ -64,12 +70,19 @@ export default async function TrustPage({ params }: Props) {
           </figure>
         </section>
 
-        <section id="kadar" aria-labelledby="karat-title" className="mt-12 scroll-mt-4">
-          <h2 id="karat-title" className="text-2xl font-semibold">
-            {c.karatTitle}
-          </h2>
-          <p className="mt-3 max-w-[65ch]">{c.karatBody}</p>
-          <div tabIndex={0} role="region" aria-labelledby="karat-title" className="mt-4 max-w-2xl overflow-x-auto">
+        <section
+          id="kadar"
+          aria-labelledby="karat-title"
+          className={`${panel} scroll-mt-4 lg:grid lg:grid-cols-[1fr_1.4fr] lg:items-start lg:gap-12`}
+        >
+          <div>
+            <h2 id="karat-title" className="text-2xl font-semibold">
+              {c.karatTitle}
+            </h2>
+            <p className="mt-3 max-w-[65ch]">{c.karatBody}</p>
+            <p className="text-muted-foreground mt-3 max-w-[65ch] text-sm">{c.karatNote}</p>
+          </div>
+          <div tabIndex={0} role="region" aria-labelledby="karat-title" className="mt-4 overflow-x-auto lg:mt-0">
             <table className="w-full min-w-[28rem] border-collapse">
               <caption className="sr-only">{c.karatTableCaption}</caption>
               <thead>
@@ -92,10 +105,9 @@ export default async function TrustPage({ params }: Props) {
               </tbody>
             </table>
           </div>
-          <p className="text-muted-foreground mt-3 max-w-[65ch] text-sm">{c.karatNote}</p>
         </section>
 
-        <section id="kebijakan" aria-labelledby="policy-title" className="mt-12 scroll-mt-4">
+        <section id="kebijakan" aria-labelledby="policy-title" className={`${panel} scroll-mt-4`}>
           <h2 id="policy-title" className="text-2xl font-semibold">
             {c.policyTitle}
           </h2>
@@ -114,7 +126,7 @@ export default async function TrustPage({ params }: Props) {
 
         {/* Shown only when the owner has supplied the real thing. */}
         {certificates ? (
-          <section aria-labelledby="cert-title" className="mt-12">
+          <section aria-labelledby="cert-title" className={panel}>
             <h2 id="cert-title" className="text-2xl font-semibold">
               {c.certificatesTitle}
             </h2>
@@ -123,7 +135,7 @@ export default async function TrustPage({ params }: Props) {
         ) : null}
 
         {story ? (
-          <section aria-labelledby="story-title" className="mt-12">
+          <section aria-labelledby="story-title" className={panel}>
             <h2 id="story-title" className="text-2xl font-semibold">
               {c.storyTitle}
             </h2>
@@ -132,7 +144,7 @@ export default async function TrustPage({ params }: Props) {
         ) : null}
 
         {testimonials.length > 0 ? (
-          <section aria-labelledby="reviews-title" className="mt-12">
+          <section aria-labelledby="reviews-title" className={panel}>
             <h2 id="reviews-title" className="text-2xl font-semibold">
               {c.reviewsTitle}
             </h2>
@@ -161,11 +173,11 @@ export default async function TrustPage({ params }: Props) {
           <h2 id="trust-faq" className="text-2xl font-semibold">
             {c.faqTitle}
           </h2>
-          <dl className="mt-5 max-w-[70ch] space-y-5">
+          <dl className="mt-6 grid gap-x-14 gap-y-7 md:grid-cols-2">
             {c.faq.map((item) => (
-              <div key={item.q}>
+              <div key={item.q} className="border-gold border-l-2 pl-4">
                 <dt className="font-display text-lg font-semibold">{item.q}</dt>
-                <dd className="mt-1">{item.a}</dd>
+                <dd className="mt-1.5">{item.a}</dd>
               </div>
             ))}
           </dl>

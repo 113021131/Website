@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import Form from "next/form";
 import Link from "next/link";
 import { ProductCard } from "@/components/catalog/product-card";
+import { PageHero } from "@/components/layout/page-hero";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buttonPrimary, buttonSecondary, container, fieldInput, fieldLabel } from "@/components/ui/styles";
 import { WhatsAppButton } from "@/components/whatsapp-button";
@@ -39,19 +40,21 @@ export default async function CatalogPage({ params, searchParams }: Props) {
   const t = getDictionary((await params).locale);
   const c = t.catalog;
   return (
-    <div className={`${container} py-8 md:py-12`}>
+    <>
       <JsonLd
         data={breadcrumbJsonLd([
           { name: t.common.home, path: "/" },
           { name: t.nav.catalog, path: "/katalog" },
         ], t.locale)}
       />
-      <h1 className="text-[1.875rem] font-semibold md:text-[2.5rem]">{c.title}</h1>
+      <PageHero title={c.title} />
+      <div className={`${container} py-6 md:py-10`}>
       {/* The filters live in the URL, so results are read at request time behind this boundary. */}
       <Suspense fallback={<CatalogSkeleton />}>
         <CatalogResults searchParams={searchParams} locale={t.locale} />
       </Suspense>
-    </div>
+      </div>
+    </>
   );
 }
 
@@ -75,7 +78,7 @@ async function CatalogResults({ searchParams, locale }: Pick<Props, "searchParam
 
   return (
     <>
-      <Form action={to("/katalog")} className="mt-5">
+      <Form action={to("/katalog")} className="rounded-lg border bg-background p-4 md:p-5">
         <label htmlFor="catalog-q" className={fieldLabel}>
           {c.search}
         </label>
@@ -91,7 +94,7 @@ async function CatalogResults({ searchParams, locale }: Pick<Props, "searchParam
           className={fieldInput}
         />
 
-        <details className="group mt-3 rounded-md border" open={filtersActive || undefined}>
+        <details className="group bg-surface-muted mt-3 rounded-md" open={filtersActive || undefined}>
           <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between px-3 font-semibold [&::-webkit-details-marker]:hidden">
             {c.filters}
             <span aria-hidden="true" className="text-muted-foreground transition-transform group-open:rotate-180">
@@ -255,7 +258,7 @@ async function CatalogResults({ searchParams, locale }: Pick<Props, "searchParam
 function CatalogSkeleton() {
   return (
     <div aria-hidden="true">
-      <div className="bg-surface-muted mt-5 h-[13.5rem] rounded-md" />
+      <div className="bg-surface-muted h-[15.5rem] rounded-lg" />
       <ul className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {Array.from({ length: 8 }, (_, index) => (
           <li key={index} className="rounded-lg border p-2.5">
