@@ -102,7 +102,13 @@ export const en: Dictionary = {
     formula: "Jewellery price = weight (grams) × price per gram + making fee (ongkos)",
     formulaBody:
       "Each karat has its own price per gram. The making fee differs by design, so two pieces of the same weight can have different prices.",
-    exampleTitle: "Example",
+    exampleTitle: "Worked example",
+    calcWeight: "Jewellery weight",
+    calcPrice: "Price per gram, {karat}",
+    calcGold: "Gold value",
+    calcFee: "Making fee (ongkos)",
+    calcFeeValue: "differs by design",
+    tryCalculator: "Try the calculator",
     example: "A {karat} ring weighing {weight}: {weight} × {price} = {total}, before the making fee.",
     disclaimer:
       "Prices on this page are a reference and can change at any time. The final price is confirmed in store or on WhatsApp.",
@@ -274,6 +280,13 @@ export const en: Dictionary = {
     summary: "{karat} selling price from {start} to {end}: lowest {min}, highest {max}.",
     tableCaption: "Price history data",
     date: "Date",
+    latest: "{karat} selling price",
+    up: "Up {amount} ({percent}%) since {start}",
+    down: "Down {amount} ({percent}%) since {start}",
+    flat: "Unchanged since {start}",
+    range: "Time range",
+    highest: "Highest",
+    lowest: "Lowest",
   },
   store: {
     metaTitle: "Store Address and Opening Hours",

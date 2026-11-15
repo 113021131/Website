@@ -98,7 +98,13 @@ export const id = {
     formula: "Harga perhiasan = berat (gram) × harga per gram + ongkos pembuatan",
     formulaBody:
       "Setiap kadar punya harga per gram sendiri. Ongkos pembuatan berbeda untuk tiap model, jadi dua perhiasan dengan berat sama bisa berbeda harga.",
-    exampleTitle: "Contoh",
+    exampleTitle: "Contoh hitungan",
+    calcWeight: "Berat perhiasan",
+    calcPrice: "Harga per gram {karat}",
+    calcGold: "Nilai emas",
+    calcFee: "Ongkos pembuatan",
+    calcFeeValue: "berbeda tiap model",
+    tryCalculator: "Hitung sendiri di kalkulator",
     example: "Cincin {karat} seberat {weight}: {weight} × {price} = {total}, belum termasuk ongkos.",
     disclaimer:
       "Harga di halaman ini adalah acuan dan dapat berubah sewaktu-waktu. Harga akhir dikonfirmasi di toko atau via WhatsApp.",
@@ -270,6 +276,13 @@ export const id = {
     summary: "Harga jual {karat} dari {start} sampai {end}: terendah {min}, tertinggi {max}.",
     tableCaption: "Data riwayat harga",
     date: "Tanggal",
+    latest: "Harga jual {karat}",
+    up: "Naik {amount} ({percent}%) sejak {start}",
+    down: "Turun {amount} ({percent}%) sejak {start}",
+    flat: "Tidak berubah sejak {start}",
+    range: "Rentang waktu",
+    highest: "Tertinggi",
+    lowest: "Terendah",
   },
   store: {
     metaTitle: "Alamat dan Jam Buka Toko",
