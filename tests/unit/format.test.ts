@@ -89,5 +89,7 @@ describe("buildWhatsAppUrl", () => {
 
   it("keeps a number that already has the country code", () => {
     expect(buildWhatsAppUrl("+62 812 3456 7890", "Halo")).toBe("https://wa.me/6281234567890?text=Halo");
+    // A number outside Indonesia keeps its own country code (a Taiwan mobile here).
+    expect(buildWhatsAppUrl("+886 912 345 678", "Halo")).toBe("https://wa.me/886912345678?text=Halo");
   });
 });

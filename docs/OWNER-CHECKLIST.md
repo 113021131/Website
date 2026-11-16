@@ -66,9 +66,10 @@ Situs sudah mencatat kejadian penting (klik WhatsApp, kunjungan halaman harga) t
 - [ ] Riwayat harga contoh dihapus (lihat `supabase/seed/demo_price_history.sql`), lalu harga emas asli diisi; **Mode contoh** dimatikan.
 - [ ] Produk contoh dihapus (`node scripts/seed-demo.mjs --remove`); produk asli dengan foto asli terbit.
 - [ ] Tiga kerangka artikel dilengkapi dan diterbitkan, atau dihapus.
-- [ ] Semua `TODO_OWNER` terisi: alamat, jam buka, WhatsApp, domain, logo.
+- [ ] Semua `TODO_OWNER` terisi: domain dan logo (alamat dan jam buka sudah).
+- [ ] Nomor WhatsApp saat ini nomor pribadi pemilik di Taiwan (+886), hanya sementara. Ganti dengan nomor WhatsApp Business toko di **Admin → Toko** sebelum peluncuran.
 - [ ] Kebijakan privasi serta syarat dan ketentuan ditinjau oleh penasihat hukum (saat ini masih draf).
-- [ ] Kebijakan beli kembali dan tukar tambah ditulis di **Admin → Toko**.
+- [ ] Kebijakan beli kembali dan tukar tambah di **Admin → Toko** masih **draf umum**, ditulis dari kebiasaan toko emas pada umumnya, tanpa angka. Sesuaikan dengan aturan toko: besar potongan (tanpa surat, rusak), menerima perhiasan dari toko lain atau tidak, perlu KTP atau tidak. Isi juga versi bahasa Inggrisnya.
 - [ ] Akun admin pemilik dibuat; **verifikasi dua langkah (MFA)** dinyalakan untuk pemilik.
 - [ ] Akun uji `e2e-admin@tokosinarmas.test` dihapus dari Supabase.
 - [ ] Pengirim email (SMTP) sendiri dipasang untuk tautan masuk.

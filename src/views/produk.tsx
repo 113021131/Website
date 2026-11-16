@@ -88,7 +88,6 @@ async function ProductDetail({ params }: Pick<Props, "params">) {
   const unavailable = product.status !== "published";
   const similar = similarProducts(priceProducts(all, board, rounding), product);
   const url = absoluteUrl(to(`/katalog/${product.slug}`));
-  const policy = ownerValue(((settings.trust_texts ?? {}) as Record<string, string>).policy);
 
   const message = estimate
     ? fill(t.whatsappMessage.product, {
@@ -295,7 +294,7 @@ async function ProductDetail({ params }: Pick<Props, "params">) {
           <h2 id="trust-title" className="text-lg font-semibold">
             {p.trustTitle}
           </h2>
-          {policy ? <p className="mt-2 break-words whitespace-pre-line">{policy}</p> : null}
+          {/* Links only: the full buyback policy is long and lives on the trust page. */}
           <ul className="mt-2">
             {t.home.trustItems.map((item) => (
               <li key={item.anchor}>

@@ -131,11 +131,14 @@ test("the WhatsApp link carries the product, karat, weight and estimate once a n
   await signIn(page);
   await page.goto("/admin/toko");
   const whatsapp = page.getByLabel("Nomor WhatsApp");
+  // The shop's real number, put back afterwards.
+  const original = await whatsapp.inputValue();
 
   try {
     await whatsapp.fill("0800 0000 0000"); // not a real subscriber number
     await page.getByRole("button", { name: "Simpan pengaturan" }).click();
-    await expect(page.locator("[data-sonner-toast]").getByText("Pengaturan tersimpan")).toBeVisible();
+    // Two database writes plus a cache refresh; allow for a slow round trip.
+    await expect(page.locator("[data-sonner-toast]").getByText("Pengaturan tersimpan")).toBeVisible({ timeout: 20_000 });
 
     await page.goto("/katalog/demo-cincin-polos-22k");
     const link = page.getByRole("main").getByRole("link", { name: "Tanya via WhatsApp" });
@@ -149,9 +152,9 @@ test("the WhatsApp link carries the product, karat, weight and estimate once a n
     expect(message).toContain("/katalog/demo-cincin-polos-22k");
   } finally {
     await page.goto("/admin/toko");
-    await page.getByLabel("Nomor WhatsApp").fill("");
+    await page.getByLabel("Nomor WhatsApp").fill(original);
     await page.getByRole("button", { name: "Simpan pengaturan" }).click();
-    await expect(page.locator("[data-sonner-toast]").getByText("Pengaturan tersimpan")).toBeVisible();
+    await expect(page.locator("[data-sonner-toast]").getByText("Pengaturan tersimpan")).toBeVisible({ timeout: 20_000 });
   }
 });
 

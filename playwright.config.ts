@@ -36,6 +36,9 @@ export default defineConfig({
       testMatch: /admin\.spec\.ts/,
       dependencies: ["mobile-360", "desktop"],
       timeout: 90_000,
+      // These tests wait on real writes to the remote database, which can take a
+      // few seconds on the free plan; 5 s (the default) made them flaky.
+      expect: { timeout: 15_000 },
     },
   ],
   webServer: {

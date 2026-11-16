@@ -60,6 +60,7 @@ async function StoreSettings() {
       facebook: social.facebook ?? "",
       tiktok: social.tiktok ?? "",
       policy: clean(trust.policy),
+      policyEn: clean(trust.policy_en),
       certificates: clean(trust.certificates),
       story: clean(trust.story),
       roundingStep: String(settings.rounding_step_idr),

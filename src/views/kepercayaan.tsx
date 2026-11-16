@@ -21,7 +21,8 @@ export default async function TrustPage({ params }: Props) {
   const c = t.trust;
   const [store, settings, testimonials] = await Promise.all([getPrimaryStore(), getSiteSettings(), getTestimonials()]);
   const texts = (settings.trust_texts ?? {}) as Record<string, string | null>;
-  const policy = ownerValue(texts.policy);
+  // The English page uses the English policy when the owner has written one.
+  const policy = (t.locale === "en" ? ownerValue(texts.policy_en) : null) ?? ownerValue(texts.policy);
   const certificates = ownerValue(texts.certificates);
   const story = ownerValue(texts.story);
 

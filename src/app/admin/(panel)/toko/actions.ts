@@ -124,6 +124,7 @@ export async function saveStore(_previous: StoreFormState, formData: FormData): 
       },
       trust_texts: {
         policy: optional("policy", 4000),
+        policy_en: optional("policyEn", 4000),
         certificates: optional("certificates", 2000),
         story: optional("story", 4000),
       },

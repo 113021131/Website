@@ -32,7 +32,8 @@ test("a visitor reserves an item; the admin sees it, updates it, exports it and 
   await page.getByLabel("Catatan (opsional)").fill("Ukuran 14");
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Kirim reservasi" }).click();
-  await expect(page.getByText("Reservasi tersimpan.", { exact: false })).toBeVisible();
+  // Saved in the database first; allow for a slow round trip.
+  await expect(page.getByText("Reservasi tersimpan.", { exact: false })).toBeVisible({ timeout: 20_000 });
 
   await signIn(page);
   await page.goto("/admin/leads");
@@ -79,17 +80,29 @@ test("an admin imports products from CSV as drafts", async ({ page }) => {
   await expect(page.getByText("1 baris siap diimpor, 1 baris perlu diperbaiki.")).toBeVisible();
   await expect(page.getByText("kadar tidak dikenal")).toBeVisible();
 
+  const name = `Impor Uji ${stamp}`;
   await page.getByRole("button", { name: "Impor 1 produk sebagai draf" }).click();
-  await expect(page).toHaveURL(/\/admin\/produk$/);
-  const row = page.getByRole("listitem").filter({ hasText: `Impor Uji ${stamp}` });
-  await expect(row).toContainText("Draf");
-
-  // Clean up.
-  await row.getByRole("link", { name: `Impor Uji ${stamp}` }).click();
-  await expect(page.getByLabel("Berat (gram)")).toHaveValue("3,5");
-  await page.getByRole("button", { name: "Hapus produk" }).click();
-  await page.getByRole("alertdialog").getByRole("button", { name: "Hapus produk" }).click();
-  await expect(page).toHaveURL(/\/admin\/produk$/);
+  try {
+    await expect(page).toHaveURL(/\/admin\/produk$/);
+    const row = page.getByRole("listitem").filter({ hasText: name });
+    await expect(row).toContainText("Draf");
+    await row.getByRole("link", { name }).click();
+    await expect(page.getByLabel("Berat (gram)")).toHaveValue("3,5");
+  } finally {
+    // Always remove the imported draft, even if a check above failed, so no test data is left behind.
+    await page.goto("/admin/produk");
+    const link = page.getByRole("link", { name });
+    const created = await link.waitFor({ timeout: 20_000 }).then(
+      () => true,
+      () => false,
+    );
+    if (created) {
+      await link.click();
+      await page.getByRole("button", { name: "Hapus produk" }).click();
+      await page.getByRole("alertdialog").getByRole("button", { name: "Hapus produk" }).click();
+      await expect(page).toHaveURL(/\/admin\/produk$/);
+    }
+  }
 });
 
 test("an admin writes an article, publishes it, and removes it", async ({ page }) => {

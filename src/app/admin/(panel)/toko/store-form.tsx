@@ -161,6 +161,7 @@ export function StoreForm({
         <h2 id="sec-trust" className="text-lg font-semibold">{t.sections.trust}</h2>
         <div className="mt-3 space-y-4">
           {field("policy", f.policy, { rows: 5 })}
+          {field("policyEn", f.policyEn, { rows: 5, hint: f.policyEnHint })}
           {field("certificates", f.certificates, { rows: 3 })}
           {field("story", f.story, { rows: 5 })}
         </div>
