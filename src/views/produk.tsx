@@ -122,7 +122,8 @@ async function ProductDetail({ params }: Pick<Props, "params">) {
             <ul
               tabIndex={0}
               aria-label={p.gallery}
-              className="-mx-4 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 pb-2 [scrollbar-width:none] md:mx-0 md:px-0"
+              // Phone: swipe through the photos. Wide screen: every photo stacked, nothing hidden off to the side.
+              className="-mx-4 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 pb-2 [scrollbar-width:none] md:mx-0 md:grid md:gap-3 md:overflow-visible md:px-0 md:pb-0"
             >
               {product.images.map((image, index) => (
                 <li
@@ -140,7 +141,7 @@ async function ProductDetail({ params }: Pick<Props, "params">) {
                     />
                   </a>
                   {product.images.length > 1 ? (
-                    <span className="bg-foreground/75 absolute right-2 bottom-2 rounded-sm px-1.5 py-0.5 text-xs text-background">
+                    <span className="bg-foreground/75 absolute right-2 bottom-2 rounded-sm px-1.5 py-0.5 text-xs text-background md:hidden">
                       {fill(p.photoCount, { index: String(index + 1), total: String(product.images.length) })}
                     </span>
                   ) : null}
@@ -155,24 +156,35 @@ async function ProductDetail({ params }: Pick<Props, "params">) {
           );
 
   return (
-    <div className={`${container} py-5 md:py-10`}>
+    <>
       <JsonLd data={productJsonLd(priced, store.name, t.locale)} />
       <JsonLd data={breadcrumbJsonLd([...crumbs, { name: product.name, path: `/katalog/${product.slug}` }], t.locale)} />
 
-      <nav aria-label={t.common.breadcrumb} className="text-muted-foreground text-sm">
-        <ol className="flex flex-wrap items-center gap-x-1.5">
-          {crumbs.map((crumb) => (
-            <li key={crumb.path} className="flex items-center gap-x-1.5">
-              <Link href={to(crumb.path)} className="flex min-h-11 items-center underline-offset-4 hover:underline">
-                {crumb.name}
-              </Link>
-              <span aria-hidden="true">/</span>
-            </li>
-          ))}
-        </ol>
-      </nav>
+      {/* The breadcrumb sits on the maroon surface, continuing the header the way every
+          other page's title band does, while the photo stays the first thing on the page. */}
+      <div className="on-dark bg-board text-board-muted">
+        <nav aria-label={t.common.breadcrumb} className={`${container} text-sm`}>
+          <ol className="flex flex-wrap items-center gap-x-1.5">
+            {crumbs.map((crumb) => (
+              <li key={crumb.path} className="flex items-center gap-x-1.5">
+                <Link
+                  href={to(crumb.path)}
+                  className="hover:text-board-foreground flex min-h-11 items-center underline-offset-4 hover:underline"
+                >
+                  {crumb.name}
+                </Link>
+                <span aria-hidden="true">/</span>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      </div>
 
-      <div className="grid gap-x-12 gap-y-6 md:grid-cols-2">
+      {/* Wide screen: photos then the "good to know" box on the left, details on the right.
+          Phone: photos, details, then the box, in reading order. */}
+      <div
+        className={`${container} grid gap-x-12 gap-y-6 pt-5 pb-10 md:grid-cols-2 md:grid-rows-[auto_1fr] md:pt-10 md:pb-14`}
+      >
         {/* 1 and 2. Photos, with a 3D preview tab when the product has a model. */}
         <div className="min-w-0">
           {flags.viewer_3d && product.modelGlbUrl ? (
@@ -199,7 +211,7 @@ async function ProductDetail({ params }: Pick<Props, "params">) {
         </div>
 
         {/* 4. Name, karat, weight, sizes, today's estimate with its breakdown. */}
-        <div className="min-w-0">
+        <div className="min-w-0 md:row-span-2">
           <div className="flex flex-wrap gap-1.5">
             {product.status === "sold" ? <Badge tone="dark">{t.catalog.sold}</Badge> : null}
             {product.status === "out_of_stock" ? <Badge tone="dark">{t.catalog.outOfStock}</Badge> : null}
@@ -274,44 +286,46 @@ async function ProductDetail({ params }: Pick<Props, "params">) {
           {product.description ? (
             <p className="mt-6 max-w-[65ch] break-words whitespace-pre-line">{product.description}</p>
           ) : null}
-
-          {/* 6. Trust box. */}
-          <section aria-labelledby="trust-title" className="bg-surface-muted mt-6 rounded-lg p-4">
-            <h2 id="trust-title" className="text-lg font-semibold">
-              {p.trustTitle}
-            </h2>
-            {policy ? <p className="mt-2 break-words whitespace-pre-line">{policy}</p> : null}
-            <ul className="mt-2">
-              {t.home.trustItems.map((item) => (
-                <li key={item.anchor}>
-                  <Link
-                    href={to(`/kepercayaan#${item.anchor}`)}
-                    className="text-brand flex min-h-11 items-center font-semibold underline-offset-4 hover:underline"
-                  >
-                    {item.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
         </div>
-      </div>
 
-      {similar.length > 0 ? (
-        <section aria-labelledby="similar-title" className="mt-10">
-          <h2 id="similar-title" className="text-2xl font-semibold">
-            {p.similar}
+        {/* 6. Trust box: under the photos on a wide screen, last on a phone. */}
+        <section aria-labelledby="trust-title" className="border-t-gold rounded-sm border border-t-4 bg-background p-4 md:self-start md:p-5">
+          <h2 id="trust-title" className="text-lg font-semibold">
+            {p.trustTitle}
           </h2>
-          <ul className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
-            {similar.map((item) => (
-              <li key={item.id}>
-                <ProductCard product={item} t={t} sizes="(min-width: 768px) 25vw, 50vw" />
+          {policy ? <p className="mt-2 break-words whitespace-pre-line">{policy}</p> : null}
+          <ul className="mt-2">
+            {t.home.trustItems.map((item) => (
+              <li key={item.anchor}>
+                <Link
+                  href={to(`/kepercayaan#${item.anchor}`)}
+                  className="text-brand flex min-h-11 items-center font-semibold underline-offset-4 hover:underline"
+                >
+                  {item.title}
+                </Link>
               </li>
             ))}
           </ul>
         </section>
+      </div>
+
+      {similar.length > 0 ? (
+        <section aria-labelledby="similar-title" className="bg-surface-muted">
+          <div className={`${container} py-10 md:py-12`}>
+            <h2 id="similar-title" className="text-2xl font-semibold">
+              {p.similar}
+            </h2>
+            <ul className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+              {similar.map((item) => (
+                <li key={item.id}>
+                  <ProductCard product={item} t={t} sizes="(min-width: 768px) 25vw, 50vw" />
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
       ) : null}
-    </div>
+    </>
   );
 }
 
@@ -343,9 +357,10 @@ function BreakdownRow({ label, detail, amount }: { label: string; detail?: strin
 
 function ProductSkeleton() {
   return (
-    <div className={`${container} py-5 md:py-10`} aria-hidden="true">
-      <div className="h-11" />
-      <div className="grid gap-x-12 gap-y-6 md:grid-cols-2">
+    <div aria-hidden="true">
+      {/* Same height as the breadcrumb strip, so nothing jumps when the page arrives. */}
+      <div className="bg-board h-11" />
+      <div className={`${container} grid gap-x-12 gap-y-6 pt-5 md:grid-cols-2 md:pt-10`}>
         <div className="bg-surface-muted aspect-[4/5] rounded-lg" />
         <div>
           <div className="bg-surface-muted h-9 w-4/5 rounded-sm" />

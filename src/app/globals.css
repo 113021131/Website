@@ -281,6 +281,9 @@
   .article-body > * + * {
     margin-top: var(--space-4);
   }
+  .article-body > :first-child {
+    margin-top: 0;
+  }
   .article-body h2 {
     margin-top: var(--space-8);
     font-size: 1.5rem;

@@ -38,7 +38,7 @@ export default async function StorePage({ params }: Props) {
           { name: t.nav.store, path: "/toko" },
         ], t.locale)}
       />
-      <PageHero title={s.title} lead={address ? [address, locality].filter(Boolean).join(", ") : undefined} />
+      <PageHero title={s.title} />
       <div className={`${container} py-8 md:py-12`}>
       <div className="grid items-start gap-5 md:grid-cols-2">
         <section aria-labelledby="store-address" className={panel}>

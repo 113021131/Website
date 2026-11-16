@@ -110,15 +110,20 @@ test("an admin creates a draft product, adds a photo, and deletes it", async ({ 
   const slug = await page.getByLabel("Alamat halaman (slug)").inputValue();
   expect(slug).toMatch(/^uji-e2e-\d+$/);
 
-  // A small real PNG; the page resizes and re-encodes it before uploading to storage.
-  const png = await sharp({ create: { width: 40, height: 50, channels: 3, background: "#c9992a" } }).png().toBuffer();
-  await page.locator("#photo-files").setInputFiles({ name: "foto.png", mimeType: "image/png", buffer: png });
-  await expect(page.getByText("Foto diperbarui")).toBeVisible();
-  await expect(page.getByLabel("Keterangan foto")).toBeVisible();
-
-  await page.getByRole("button", { name: "Hapus produk" }).click();
-  await page.getByRole("alertdialog").getByRole("button", { name: "Hapus produk" }).click();
-  await expect(page).toHaveURL(/\/admin\/produk$/);
+  try {
+    // A small real PNG; the page resizes and re-encodes it before uploading to storage.
+    // The upload goes over the internet to Supabase, so allow it more than the default 5 s.
+    const png = await sharp({ create: { width: 40, height: 50, channels: 3, background: "#c9992a" } }).png().toBuffer();
+    await page.locator("#photo-files").setInputFiles({ name: "foto.png", mimeType: "image/png", buffer: png });
+    await expect(page.locator("[data-sonner-toast]").getByText("Foto diperbarui")).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByLabel("Keterangan foto")).toBeVisible();
+  } finally {
+    // Always remove the draft, even if the photo step failed, so no test data is left behind.
+    await page.goto(page.url());
+    await page.getByRole("button", { name: "Hapus produk" }).click();
+    await page.getByRole("alertdialog").getByRole("button", { name: "Hapus produk" }).click();
+    await expect(page).toHaveURL(/\/admin\/produk$/);
+  }
   await expect(page.getByText(name)).toHaveCount(0);
 });
 

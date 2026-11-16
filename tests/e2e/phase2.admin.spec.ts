@@ -101,6 +101,10 @@ test("an admin writes an article, publishes it, and removes it", async ({ page }
   await page.getByLabel("Isi artikel (Markdown)").fill("## Bagian satu\n\nParagraf **penting**.\n\n<script>window.bahaya = 1</script>");
   await page.getByRole("button", { name: "Simpan artikel" }).click();
   await expect(page).toHaveURL(/\/admin\/artikel\/\d+$/);
+  // The URL changes before the editor for the saved article has rendered; wait for
+  // it, or the slug is read from the empty "new article" form still on screen.
+  await expect(page.getByRole("heading", { name: "Ubah artikel" })).toBeVisible();
+  await expect(page.getByLabel("Alamat halaman (slug)")).not.toHaveValue("");
   const slug = await page.getByLabel("Alamat halaman (slug)").inputValue();
 
   // Still a draft: not public.

@@ -85,9 +85,10 @@ export function Estimator({
 
       <fieldset className="mt-4">
         <legend className={fieldLabel}>{c.karat}</legend>
-        <div className="mt-1.5 flex flex-wrap gap-1.5">
+        {/* Equal columns that fit five karats on a 360 px phone and wrap evenly if the shop adds more. */}
+        <div className="mt-1.5 grid grid-cols-[repeat(auto-fill,minmax(3.25rem,1fr))] gap-1.5">
           {rows.map((entry) => (
-            <label key={entry.karatCode} className="relative min-w-[3.75rem] flex-1">
+            <label key={entry.karatCode} className="relative">
               <input
                 type="radio"
                 name={`${ids}-karat`}
