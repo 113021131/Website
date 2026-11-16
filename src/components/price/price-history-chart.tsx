@@ -77,7 +77,7 @@ export function PriceHistoryChart({ history, locale, t }: { history: PriceHistor
     "peer-focus-visible:outline-ring peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2";
 
   return (
-    <section aria-labelledby={`${ids}-title`} className="rounded-lg border bg-background p-4 md:p-6">
+    <section aria-labelledby={`${ids}-title`} className="@container rounded-lg border bg-background p-[min(1rem,5vw)] md:p-6">
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
         <h2 id={`${ids}-title`} className="text-2xl font-semibold">
           {t.title}
@@ -123,7 +123,7 @@ export function PriceHistoryChart({ history, locale, t }: { history: PriceHistor
         <>
           <div className="mt-5">
             <p className="text-muted-foreground text-sm">{fill(t.latest, { karat })}</p>
-            <p className="font-display price text-[2rem] leading-10 font-semibold">{formatIdr(latest.sellIdr)}</p>
+            <p className="font-display price price-fit font-semibold [--price-fit-max:2rem]">{formatIdr(latest.sellIdr)}</p>
             <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold">
               <ChangeIcon className="text-gold-ink size-4 shrink-0" aria-hidden="true" />
               <span className="price whitespace-normal">{changeText}</span>
@@ -159,17 +159,30 @@ export function PriceHistoryChart({ history, locale, t }: { history: PriceHistor
                 className="bg-brand absolute size-3 -translate-x-1/2 -translate-y-1/2 rounded-full ring-[3px] ring-background"
                 style={{ left: `${end.x}%`, top: `${end.y}%` }}
               />
-              <span className="price text-muted-foreground absolute left-0 bg-background/85 pr-1.5 text-xs" style={{ top: `${EDGE}%`, transform: "translateY(-115%)" }}>
+              {/* High and low sit on the chart's guide lines while the chart is wide enough
+                  for them (measured in rem, so this follows the phone's text size). With very
+                  large text they move to the list under the chart instead. */}
+              <span className="price text-muted-foreground absolute left-0 hidden bg-background/85 pr-1.5 text-xs @min-[14rem]:block" style={{ top: `${EDGE}%`, transform: "translateY(-115%)" }}>
                 {t.highest} {formatIdr(max)}
               </span>
-              <span className="price text-muted-foreground absolute left-0 bg-background/85 pr-1.5 text-xs" style={{ top: `${100 - EDGE}%`, transform: "translateY(15%)" }}>
+              <span className="price text-muted-foreground absolute left-0 hidden bg-background/85 pr-1.5 text-xs @min-[14rem]:block" style={{ top: `${100 - EDGE}%`, transform: "translateY(15%)" }}>
                 {t.lowest} {formatIdr(min)}
               </span>
             </div>
-            <div className="text-muted-foreground price mt-1.5 flex justify-between text-xs">
+            <div className="text-muted-foreground mt-1.5 flex flex-wrap justify-between gap-x-3 text-xs tabular-nums">
               <span>{label(first.date)}</span>
               <span>{label(latest.date)}</span>
             </div>
+            <dl className="text-muted-foreground mt-2 space-y-1 text-xs @min-[14rem]:hidden">
+              <div className="flex flex-wrap gap-x-2">
+                <dt>{t.highest}</dt>
+                <dd className="price">{formatIdr(max)}</dd>
+              </div>
+              <div className="flex flex-wrap gap-x-2">
+                <dt>{t.lowest}</dt>
+                <dd className="price">{formatIdr(min)}</dd>
+              </div>
+            </dl>
             <figcaption className="sr-only">{summary}</figcaption>
           </figure>
 
@@ -191,7 +204,7 @@ export function PriceHistoryChart({ history, locale, t }: { history: PriceHistor
                 <tbody>
                   {[...points].reverse().map((point) => (
                     <tr key={point.date} className="border-t">
-                      <td className="price py-1.5">
+                      <td className="py-1.5 pr-3 tabular-nums">
                         {label(point.date)} {point.date.slice(0, 4)}
                       </td>
                       <td className="price py-1.5 text-right">{formatIdr(point.sellIdr)}</td>

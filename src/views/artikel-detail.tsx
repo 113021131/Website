@@ -97,7 +97,7 @@ async function ArticleDetail({ params }: Pick<Props, "params">) {
             </p>
           ) : null}
           {article.publishedAt ? (
-            <p className="price text-board-accent mt-4 text-sm font-semibold">
+            <p className="text-board-accent mt-4 text-sm font-semibold tabular-nums">
               {fill(a.published, { date: formatDateTime(article.publishedAt, settings.timezone, "id").slice(0, 11) })}
             </p>
           ) : null}
@@ -112,7 +112,7 @@ async function ArticleDetail({ params }: Pick<Props, "params">) {
           <ArticleBody markdown={article.bodyMd} />
         </div>
 
-        <div className="border-t-gold mt-10 max-w-[65ch] rounded-sm border border-t-4 bg-background p-4 md:p-5">
+        <div className="border-t-gold mt-10 max-w-[65ch] rounded-sm border border-t-4 bg-background p-[min(1rem,5vw)] md:p-5">
           <WhatsAppButton
             number={ownerValue(store.whatsapp)}
             message={fill(t.whatsappMessage.general, { brand: store.name })}

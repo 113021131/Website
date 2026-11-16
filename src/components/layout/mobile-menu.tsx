@@ -40,7 +40,7 @@ export function MobileMenu({ links, openLabel, closeLabel }: { links: NavLink[];
         <nav
           id={panelId}
           aria-label={openLabel}
-          className="text-foreground absolute inset-x-4 top-14 z-40 overscroll-contain rounded-md border bg-background p-2 shadow-lg"
+          className="text-foreground absolute inset-x-4 top-full z-40 overscroll-contain rounded-md border bg-background p-2 shadow-lg"
         >
           <ul>
             {links.map((link) => (

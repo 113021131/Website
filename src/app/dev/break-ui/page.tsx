@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { ProductCard } from "@/components/catalog/product-card";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { PriceNotices, PriceTable } from "@/components/price/price-table";
+import { cardGridColumns } from "@/components/ui/styles";
 import { getDictionary } from "@/i18n";
 import { formatDateTime } from "@/lib/format";
 import { DATASETS, FIXTURES, type Dataset } from "./fixtures";
@@ -40,7 +41,7 @@ async function Stage({ searchParams }: Pick<PageProps<"/dev/break-ui">, "searchP
         <div className="on-dark bg-board text-board-foreground page-gutter py-6">
           <h1 className="text-[1.875rem] font-semibold">{t.price.title}</h1>
           {updated ? (
-            <p className="price text-board-accent mt-1.5 text-sm">
+            <p className="text-board-accent mt-1.5 text-sm tabular-nums">
               {t.price.updated}: {updated}
             </p>
           ) : null}
@@ -62,13 +63,15 @@ async function Stage({ searchParams }: Pick<PageProps<"/dev/break-ui">, "searchP
 
           <h2 className="mt-8 text-2xl font-semibold">{t.catalog.title}</h2>
           {products.length > 0 ? (
-            <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-              {products.map((product) => (
-                <li key={product.id}>
-                  <ProductCard product={product} t={t} />
-                </li>
-              ))}
-            </ul>
+            <div className="@container mt-3">
+              <ul className={cardGridColumns}>
+                {products.map((product) => (
+                  <li key={product.id}>
+                    <ProductCard product={product} t={t} />
+                  </li>
+                ))}
+              </ul>
+            </div>
           ) : (
             <p className="text-muted-foreground mt-3">{t.catalog.emptyTitle}</p>
           )}

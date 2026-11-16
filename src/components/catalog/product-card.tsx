@@ -1,10 +1,10 @@
-import Image from "next/image";
 import Link from "next/link";
 import { localePath, type Dictionary } from "@/i18n";
 import type { PricedProduct } from "@/lib/catalog";
 import { formatIdr, formatWeight } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { JewelArt, toJewelKind } from "./jewel-art";
+import { toJewelKind } from "./jewel-art";
+import { ProductPhoto } from "./product-photo";
 
 /**
  * Catalogue card. Built for the worst cases in DESIGN.md: a very long name
@@ -31,21 +31,15 @@ export function ProductCard({
   return (
     <article className="relative flex h-full flex-col rounded-lg border bg-background p-2.5">
       <div className="bg-surface-tint relative aspect-[4/5] overflow-hidden rounded-md">
-        {photo ? (
-          <Image
-            src={photo.url}
-            alt={photo.alt || product.name}
-            fill
-            sizes={sizes}
-            priority={priority}
-            className={cn("object-cover", unavailable && "opacity-55")}
-          />
-        ) : (
-          <div className="flex h-full flex-col items-center justify-center gap-1 px-2 text-center">
-            <JewelArt kind={toJewelKind(product.categorySlug)} className="size-16" />
-            <span className="text-muted-foreground text-xs">{t.catalog.noPhoto}</span>
-          </div>
-        )}
+        <ProductPhoto
+          src={photo?.url ?? null}
+          alt={photo?.alt || product.name}
+          sizes={sizes}
+          priority={priority}
+          className={cn("object-cover", unavailable && "opacity-55")}
+          kind={toJewelKind(product.categorySlug)}
+          fallbackLabel={t.catalog.noPhoto}
+        />
         <div className="absolute top-2 left-2 flex flex-wrap gap-1">
           {statusLabel ? (
             <span className="bg-foreground rounded-sm px-1.5 py-0.5 text-xs font-semibold text-background">
@@ -75,7 +69,11 @@ export function ProductCard({
         {product.estimate ? (
           <p className="leading-tight">
             <span className="text-muted-foreground block text-xs">{t.catalog.estimated}</span>
-            <span className="price text-[0.9375rem] font-semibold">{formatIdr(product.estimate.totalIdr)}</span>
+            {/* An ordinary space after "Rp", so a very large amount can drop the number onto
+                its own line in a narrow card. Digits never split: there is no break inside them. */}
+            <span className="text-[0.9375rem] font-semibold tabular-nums">
+              {formatIdr(product.estimate.totalIdr).replace(" ", " ")}
+            </span>
           </p>
         ) : (
           <p className="text-[0.8125rem] leading-tight font-semibold">{t.catalog.onRequest}</p>

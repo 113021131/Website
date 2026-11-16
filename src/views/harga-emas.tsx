@@ -27,13 +27,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 /** A ruled line of the worked example: label, dotted leader, value. */
 function SlipRow({ label, value, strong = false }: { label: string; value: string; strong?: boolean }) {
   return (
-    <div className={strong ? "flex items-end gap-2 border-t-2 border-dashed pt-2.5" : "flex items-end gap-2"}>
+    <div className={strong ? "flex flex-wrap items-end gap-x-2 border-t-2 border-dashed pt-2.5" : "flex flex-wrap items-end gap-x-2"}>
       {/* The dotted leader lives inside the term, so the list stays a valid term/value pair. */}
       <dt className={strong ? "flex flex-1 items-end gap-2 font-semibold" : "flex flex-1 items-end gap-2"}>
         {label}
         <span aria-hidden="true" className="border-nota-leader mb-1.5 min-w-4 flex-1 border-b-2 border-dotted" />
       </dt>
-      <dd className={strong ? "font-display price text-xl font-semibold" : "price font-semibold"}>{value}</dd>
+      <dd className={strong ? "font-display price price-fit ml-auto font-semibold [--price-fit-max:1.25rem]" : "price ml-auto font-semibold"}>
+        {value}
+      </dd>
     </div>
   );
 }
@@ -86,7 +88,7 @@ export default async function GoldPricePage({ params }: Props) {
               {t.price.title}
             </h1>
             {board.updatedAt ? (
-              <p className="price border-board-accent text-board-accent mt-3 inline-block rounded-sm border px-2.5 py-1 text-sm font-semibold">
+              <p className="border-board-accent text-board-accent mt-3 inline-block rounded-sm border px-2.5 py-1 text-sm font-semibold tabular-nums">
                 {t.price.updated}:{" "}
                 <time dateTime={board.updatedAt}>{formatDateTime(board.updatedAt, board.timeZone, t.locale)}</time>
               </p>
@@ -124,7 +126,7 @@ export default async function GoldPricePage({ params }: Props) {
         {history.length > 0 ? <PriceHistoryChart history={history} locale={t.locale} t={t.chart} /> : null}
 
         {/* How a price is worked out, written like the slip a customer gets in the shop. */}
-        <section aria-labelledby="formula-title" className="border-t-brand rounded-sm border border-t-4 bg-background p-4 md:p-6">
+        <section aria-labelledby="formula-title" className="@container border-t-brand rounded-sm border border-t-4 bg-background p-[min(1rem,5vw)] md:p-6">
           <h2 id="formula-title" className="text-2xl font-semibold">
             {p.formulaTitle}
           </h2>
@@ -161,7 +163,7 @@ export default async function GoldPricePage({ params }: Props) {
           <h2 id="price-faq" className="text-2xl font-semibold">
             {p.faqTitle}
           </h2>
-          <dl className="mt-6 grid gap-x-14 gap-y-7 md:grid-cols-2">
+          <dl className="mt-6 grid grid-cols-1 gap-x-14 gap-y-7 md:grid-cols-2">
             {p.faq.map((item) => (
               <div key={item.q} className="border-gold border-l-2 pl-4">
                 <dt className="font-display text-lg font-semibold">{item.q}</dt>

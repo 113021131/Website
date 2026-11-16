@@ -103,7 +103,9 @@
   --ring: var(--brand);
 
   --touch-target: 3rem;
-  --page-gutter: var(--space-4);
+  /* 1rem, but never more than 5% of the screen: with very large phone text the
+     side margins stay put instead of doubling and eating the content width. */
+  --page-gutter: min(var(--space-4), 5vw);
   --content-max: 72rem;
 
   /* ── 3. Component ──────────────────────────────────────────────── */
@@ -206,6 +208,10 @@
   body {
     @apply bg-background text-foreground font-sans;
     line-height: 1.6;
+    /* A word is split only when it alone is wider than its line: a long Indonesian
+       word ("memperhitungkan") on a small phone with very large text. Amounts carry
+       the `price` utility (no wrapping at all), so they are never split. */
+    overflow-wrap: break-word;
   }
 
   h1,
@@ -214,6 +220,9 @@
     @apply font-display;
     text-wrap: balance;
     line-height: 1.15;
+    /* Only breaks inside a word when that word alone is wider than the line
+       (a long Indonesian word with a very large phone text setting). */
+    overflow-wrap: break-word;
   }
 
   p {
@@ -329,6 +338,17 @@
     padding: var(--space-2) var(--space-3) var(--space-2) 0;
     text-align: left;
   }
+}
+
+/*
+ * Headline amounts (an estimate total, today's price) in a narrow box. At normal
+ * text size this is the full size; when a phone's text is set very large it
+ * shrinks to fit the box instead of running off the screen. 10cqi is a tenth of
+ * the nearest @container's width. Set --price-fit-max to change the full size.
+ */
+@utility price-fit {
+  font-size: clamp(18px, 10cqi, var(--price-fit-max, 1.75rem));
+  line-height: 1.2;
 }
 
 @utility price {

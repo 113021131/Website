@@ -31,7 +31,7 @@ export function Wordmark({
           SM
         </text>
       </svg>
-      <span className="font-display text-[1.0625rem] leading-none font-semibold tracking-[-0.01em]">
+      <span className="font-display min-w-0 text-[1.0625rem] leading-tight font-semibold tracking-[-0.01em]">
         {name}
       </span>
     </span>

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ProductCard } from "@/components/catalog/product-card";
 import { PageHero } from "@/components/layout/page-hero";
 import { JsonLd } from "@/components/seo/json-ld";
-import { buttonPrimary, buttonSecondary, container, fieldInput, fieldLabel } from "@/components/ui/styles";
+import { buttonPrimary, buttonSecondary, container, fieldInput, fieldLabel, cardGridColumns } from "@/components/ui/styles";
 import { WhatsAppButton } from "@/components/whatsapp-button";
 import { ownerValue } from "@/config/owner";
 import { fill, getDictionary, localePath, type Locale } from "@/i18n";
@@ -78,7 +78,7 @@ async function CatalogResults({ searchParams, locale }: Pick<Props, "searchParam
 
   return (
     <>
-      <Form action={to("/katalog")} className="rounded-lg border bg-background p-4 md:p-5">
+      <Form action={to("/katalog")} className="rounded-lg border bg-background p-[min(1rem,5vw)] md:p-5">
         <label htmlFor="catalog-q" className={fieldLabel}>
           {c.search}
         </label>
@@ -199,13 +199,15 @@ async function CatalogResults({ searchParams, locale }: Pick<Props, "searchParam
       </p>
 
       {result.items.length > 0 ? (
-        <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {result.items.map((product, index) => (
-            <li key={product.id}>
-              <ProductCard product={product} t={t} priority={index < 2} />
-            </li>
-          ))}
-        </ul>
+        <div className="@container mt-3">
+          <ul className={cardGridColumns}>
+            {result.items.map((product, index) => (
+              <li key={product.id}>
+                <ProductCard product={product} t={t} priority={index < 2} />
+              </li>
+            ))}
+          </ul>
+        </div>
       ) : (
         <div className="bg-surface-muted mt-3 rounded-lg px-4 py-10 text-center">
           <h2 className="text-xl font-semibold">{c.emptyTitle}</h2>
@@ -259,16 +261,18 @@ function CatalogSkeleton() {
   return (
     <div aria-hidden="true">
       <div className="bg-surface-muted h-[15.5rem] rounded-lg" />
-      <ul className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-        {Array.from({ length: 8 }, (_, index) => (
-          <li key={index} className="rounded-lg border p-2.5">
-            <div className="bg-surface-muted aspect-[4/5] rounded-md" />
-            <div className="bg-surface-muted mt-2.5 h-4 w-4/5 rounded-sm" />
-            <div className="bg-surface-muted mt-2 h-4 w-2/5 rounded-sm" />
-            <div className="bg-surface-muted mt-4 h-5 w-3/5 rounded-sm" />
-          </li>
-        ))}
-      </ul>
+      <div className="@container mt-12">
+        <ul className={cardGridColumns}>
+          {Array.from({ length: 8 }, (_, index) => (
+            <li key={index} className="rounded-lg border p-2.5">
+              <div className="bg-surface-muted aspect-[4/5] rounded-md" />
+              <div className="bg-surface-muted mt-2.5 h-4 w-4/5 rounded-sm" />
+              <div className="bg-surface-muted mt-2 h-4 w-2/5 rounded-sm" />
+              <div className="bg-surface-muted mt-4 h-5 w-3/5 rounded-sm" />
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

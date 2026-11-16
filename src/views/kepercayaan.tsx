@@ -51,19 +51,21 @@ export default async function TrustPage({ params }: Props) {
           </div>
 
           {/* A labelled sample, with zeros instead of amounts, so it cannot be mistaken for a real receipt. */}
-          <figure className="mt-5 rounded-sm border border-t-4 border-t-brand p-4 lg:mt-0">
+          <figure className="mt-5 rounded-sm border border-t-4 border-t-brand p-[min(1rem,4vw)] lg:mt-0">
             <figcaption className="bg-notice text-notice-foreground inline-block rounded-sm px-2 py-0.5 text-sm font-semibold">
               {c.suratSample}
             </figcaption>
+            {/* Label and value share a line while they fit; with very large text the value
+                drops under the label, right-aligned, instead of pushing the sample off-screen. */}
             <dl className="mt-3">
               {c.suratFields.map((field) => (
                 <div
                   key={field.label}
-                  className="border-nota-leader grid grid-cols-[1fr_auto] items-baseline gap-x-3 border-b border-dotted py-2.5 last:border-b-0"
+                  className="border-nota-leader flex flex-wrap items-baseline gap-x-3 border-b border-dotted py-2.5 last:border-b-0"
                 >
-                  <dt className="font-semibold">{field.label}</dt>
-                  <dd className="price font-display">{field.value}</dd>
-                  <dd className="text-muted-foreground col-span-2 text-sm">{field.note}</dd>
+                  <dt className="min-w-0 font-semibold break-words">{field.label}</dt>
+                  <dd className="font-display ml-auto text-right tabular-nums">{field.value}</dd>
+                  <dd className="text-muted-foreground basis-full text-sm">{field.note}</dd>
                 </div>
               ))}
             </dl>
@@ -82,28 +84,49 @@ export default async function TrustPage({ params }: Props) {
             <p className="mt-3 max-w-[65ch]">{c.karatBody}</p>
             <p className="text-muted-foreground mt-3 max-w-[65ch] text-sm">{c.karatNote}</p>
           </div>
-          <div tabIndex={0} role="region" aria-labelledby="karat-title" className="mt-4 overflow-x-auto lg:mt-0">
-            <table className="w-full min-w-[28rem] border-collapse">
-              <caption className="sr-only">{c.karatTableCaption}</caption>
-              <thead>
-                <tr className="text-muted-foreground text-left text-sm">
-                  <th scope="col" className="pb-2 font-medium">{c.karatColumns.karat}</th>
-                  <th scope="col" className="pb-2 font-medium">{c.karatColumns.purity}</th>
-                  <th scope="col" className="pb-2 font-medium">{c.karatColumns.use}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {c.karatRows.map((row) => (
-                  <tr key={row.karat} className="border-t align-top">
-                    <th scope="row" className="font-display text-gold-ink py-2.5 pr-4 text-left text-lg font-semibold">
-                      {row.karat}
-                    </th>
-                    <td className="price py-2.5 pr-4">{row.purity}</td>
-                    <td className="py-2.5">{row.use}</td>
+          {/* Three columns need about 15rem. Measured in rem, so on a phone with very large
+              text each karat becomes a small card instead (the price board does the same). */}
+          <div className="@container mt-4 lg:mt-0">
+            <ul aria-label={c.karatTableCaption} className="@min-[15rem]:hidden">
+              {c.karatRows.map((row) => (
+                <li key={row.karat} className="border-t py-3 first:border-t-0 first:pt-0">
+                  <p className="font-display text-gold-ink text-lg font-semibold">{row.karat}</p>
+                  <dl className="mt-1 space-y-1.5">
+                    <div>
+                      <dt className="text-muted-foreground text-sm">{c.karatColumns.purity}</dt>
+                      <dd className="tabular-nums">{row.purity}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground text-sm">{c.karatColumns.use}</dt>
+                      <dd>{row.use}</dd>
+                    </div>
+                  </dl>
+                </li>
+              ))}
+            </ul>
+            <div tabIndex={0} role="region" aria-labelledby="karat-title" className="hidden overflow-x-auto @min-[15rem]:block">
+              <table className="w-full border-collapse">
+                <caption className="sr-only">{c.karatTableCaption}</caption>
+                <thead>
+                  <tr className="text-muted-foreground text-left text-sm">
+                    <th scope="col" className="pb-2 font-medium">{c.karatColumns.karat}</th>
+                    <th scope="col" className="pb-2 font-medium">{c.karatColumns.purity}</th>
+                    <th scope="col" className="pb-2 font-medium">{c.karatColumns.use}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {c.karatRows.map((row) => (
+                    <tr key={row.karat} className="border-t align-top">
+                      <th scope="row" className="font-display text-gold-ink py-2.5 pr-4 text-left text-lg font-semibold">
+                        {row.karat}
+                      </th>
+                      <td className="py-2.5 pr-4 tabular-nums">{row.purity}</td>
+                      <td className="py-2.5">{row.use}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
 
@@ -173,7 +196,8 @@ export default async function TrustPage({ params }: Props) {
           <h2 id="trust-faq" className="text-2xl font-semibold">
             {c.faqTitle}
           </h2>
-          <dl className="mt-6 grid gap-x-14 gap-y-7 md:grid-cols-2">
+          {/* grid-cols-1 caps the column at the screen width, so a long word wraps instead of widening it. */}
+          <dl className="mt-6 grid grid-cols-1 gap-x-14 gap-y-7 md:grid-cols-2">
             {c.faq.map((item) => (
               <div key={item.q} className="border-gold border-l-2 pl-4">
                 <dt className="font-display text-lg font-semibold">{item.q}</dt>

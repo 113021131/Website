@@ -78,7 +78,7 @@ export function Estimator({
       : fill(t.whatsappMessage.price, { brand });
 
   return (
-    <section aria-labelledby={`${ids}-title`} className="border-t-brand rounded-sm border border-t-4 bg-background p-4 md:p-6">
+    <section aria-labelledby={`${ids}-title`} className="@container border-t-brand rounded-sm border border-t-4 bg-background p-[min(1rem,5vw)] md:p-6">
       <h2 id={`${ids}-title`} className="text-xl font-semibold">
         {mode === "buy" ? c.buyTab : c.sellTab}
       </h2>
@@ -178,7 +178,7 @@ export function Estimator({
         <p className="text-sm font-semibold">{mode === "buy" ? c.resultBuy : c.resultSell}</p>
         {estimate && row && weightG !== null ? (
           <>
-            <p className="font-display price mt-0.5 text-[2rem] leading-10 font-semibold">{formatIdr(estimate.totalIdr)}</p>
+            <p className="font-display price price-fit mt-0.5 font-semibold [--price-fit-max:2rem]">{formatIdr(estimate.totalIdr)}</p>
             <dl className="text-muted-foreground mt-2 space-y-1 text-sm">
               <div className="flex flex-wrap justify-between gap-x-3">
                 <dt>

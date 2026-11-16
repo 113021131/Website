@@ -181,3 +181,55 @@ test.describe("admin auth guard", () => {
     await expect(page).toHaveURL(/\/admin\/login$/);
   });
 });
+
+// Worst cases from the break-ui review: a phone's text size set very large, and a
+// product photo that fails to load.
+test.describe("large text setting (200%)", () => {
+  const sidewaysScroll = (page: Page) =>
+    page.evaluate(
+      () =>
+        new Promise<number>((resolve) =>
+          requestAnimationFrame(() => resolve(document.documentElement.scrollWidth - document.documentElement.clientWidth)),
+        ),
+    );
+
+  for (const path of [
+    "/",
+    "/harga-emas",
+    "/katalog",
+    "/katalog/demo-set-cincin-kawin",
+    "/kalkulator",
+    "/kepercayaan",
+    "/en/kepercayaan",
+    "/layanan",
+    "/en/toko",
+  ]) {
+    test(`${path} does not scroll sideways`, async ({ page }) => {
+      await page.goto(path);
+      await page.addStyleTag({ content: "html{font-size:200%}" });
+      expect(await sidewaysScroll(page)).toBeLessThanOrEqual(0);
+    });
+  }
+
+  test("the price board shows one block per karat instead of a three-column table", async ({ page }) => {
+    await page.goto("/harga-emas");
+    const board = page.getByRole("table", { name: /Harga emas hari ini/ });
+    await expect(board).toBeVisible();
+    await page.addStyleTag({ content: "html{font-size:200%}" });
+    await expect(board).toBeHidden();
+    const list = page.getByRole("list", { name: /Harga emas hari ini/ });
+    await expect(list).toBeVisible();
+    await expect(list.getByRole("listitem")).toHaveCount(5);
+  });
+});
+
+test("a product photo that fails to load shows the drawing, not a broken image", async ({ page }) => {
+  await page.route(
+    (url) => url.pathname === "/_next/image" && (url.searchParams.get("url") ?? "").includes("demo-cincin-polos-22k-1"),
+    (route) => route.fulfill({ status: 404, body: "" }),
+  );
+  await page.goto("/katalog");
+  const card = page.getByRole("article").filter({ hasText: "Cincin Polos" });
+  await expect(card.getByText("Foto belum tersedia")).toBeVisible();
+  await expect(card.locator("img")).toHaveCount(0);
+});

@@ -21,6 +21,11 @@ const targets = [
   { name: "product-126jt-320", url: "/katalog/demo-kalung-rantai-padat-24k", width: 320 },
   { name: "catalog-320", url: "/katalog", width: 320 },
   { name: "home-320-text200", url: "/", width: 320, rootFont: "200%" },
+  { name: "home-360-text200", url: "/", width: 360, rootFont: "200%" },
+  { name: "price-360-text200", url: "/harga-emas", width: 360, rootFont: "200%" },
+  { name: "catalog-360-text200", url: "/katalog", width: 360, rootFont: "200%" },
+  { name: "calculator-360-text200", url: "/kalkulator", width: 360, rootFont: "200%" },
+  { name: "english-product-360-text200", url: "/en/katalog/demo-set-cincin-kawin", width: 360, rootFont: "200%" },
 ];
 
 const browser = await chromium.launch();
@@ -37,7 +42,7 @@ for (const target of targets) {
     const pageOverflow = document.documentElement.scrollWidth - viewport;
     const problems = [];
     for (const element of document.querySelectorAll("main *, footer *, header *")) {
-      if (element.closest("nav[aria-label='Dataset']") || element.closest("svg")) continue;
+      if (element.closest("nav[aria-label='Dataset']") || element.closest("svg") || element.closest(".sr-only")) continue;
       const style = getComputedStyle(element);
       if (style.display === "none" || style.visibility === "hidden") continue;
       const rect = element.getBoundingClientRect();

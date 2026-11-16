@@ -48,7 +48,7 @@ export default async function CalculatorPage({ params }: Props) {
       />
       <PageHero title={c.title} lead={c.lead}>
         {board.updatedAt ? (
-          <p className="price border-board-accent text-board-accent mt-4 inline-block rounded-sm border px-2.5 py-1 text-sm font-semibold">
+          <p className="border-board-accent text-board-accent mt-4 inline-block rounded-sm border px-2.5 py-1 text-sm font-semibold tabular-nums">
           {t.price.updated}: <time dateTime={board.updatedAt}>{formatDateTime(board.updatedAt, board.timeZone, t.locale)}</time>
         </p>
         ) : null}

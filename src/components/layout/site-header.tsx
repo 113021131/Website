@@ -21,8 +21,8 @@ export function SiteHeader({ brand, t }: { brand: string; t: Dictionary }) {
   const links = navLinks(t);
   return (
     <header className="on-dark bg-board text-board-foreground">
-      <div className="page-gutter relative mx-auto flex h-14 w-full max-w-[72rem] items-center justify-between gap-4">
-        <Link href={localePath(t.locale, "/")} className="-ml-1 flex min-h-12 items-center rounded-md px-1">
+      <div className="page-gutter relative mx-auto flex min-h-14 w-full max-w-[72rem] flex-wrap items-center justify-between gap-x-4">
+        <Link href={localePath(t.locale, "/")} className="-ml-1 flex min-h-12 min-w-0 items-center rounded-md px-1">
           <Wordmark name={brand} tone="dark" />
         </Link>
         <nav aria-label={t.common.menu} className="hidden md:block">

@@ -35,7 +35,9 @@ export default async function ServicesPage({ params }: Props) {
 
       <ul className="grid gap-5 md:grid-cols-2">
         {s.items.map((item) => (
-          <li key={item.key} id={item.key} className="border-t-gold flex scroll-mt-4 flex-col rounded-sm border border-t-4 bg-background p-5 md:p-6">
+          // Padding is capped at 5% of the screen width so the card stays on screen on a
+          // small phone with very large text (the same rule as the buttons).
+          <li key={item.key} id={item.key} className="border-t-gold flex scroll-mt-4 flex-col rounded-sm border border-t-4 bg-background p-[min(1.25rem,5vw)] md:p-6">
             <h2 className="text-xl font-semibold">{item.title}</h2>
             <p className="mt-2 mb-5 max-w-[55ch]">{item.body}</p>
             <WhatsAppButton

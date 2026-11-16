@@ -19,6 +19,10 @@ export function PageHero({ title, lead, children }: { title: string; lead?: stri
   );
 }
 
-/** Shared panel looks, so every page groups its content the same way. */
-export const panel = "rounded-lg border bg-background p-4 md:p-6";
-export const slipPanel = "border-t-brand rounded-sm border border-t-4 bg-background p-4 md:p-6";
+/**
+ * Shared panel looks, so every page groups its content the same way. The phone
+ * padding is capped at 5% of the screen width: with very large text it does not
+ * grow with the text and squeeze the content into a thin column.
+ */
+export const panel = "rounded-lg border bg-background p-[min(1rem,5vw)] md:p-6";
+export const slipPanel = "border-t-brand rounded-sm border border-t-4 bg-background p-[min(1rem,5vw)] md:p-6";

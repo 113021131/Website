@@ -6,7 +6,7 @@ import { JewelArt, toJewelKind } from "@/components/catalog/jewel-art";
 import { ProductCard } from "@/components/catalog/product-card";
 import { PriceNotices, PriceTable } from "@/components/price/price-table";
 import { JsonLd } from "@/components/seo/json-ld";
-import { buttonOnDark, buttonSecondary, container } from "@/components/ui/styles";
+import { buttonOnDark, buttonSecondary, container, cardGridColumns } from "@/components/ui/styles";
 import { WhatsAppButton } from "@/components/whatsapp-button";
 import { ownerValue } from "@/config/owner";
 import { fill, getDictionary, localePath } from "@/i18n";
@@ -55,7 +55,7 @@ export default async function HomePage({ params }: Props) {
           <div>
             <h1 className="text-[1.875rem] font-semibold md:text-[2.5rem]">{t.price.title}</h1>
             {board.updatedAt ? (
-              <p className="price text-board-accent mt-1.5 text-sm">
+              <p className="text-board-accent mt-1.5 text-sm tabular-nums">
                 {t.price.updated}:{" "}
                 <time dateTime={board.updatedAt}>{formatDateTime(board.updatedAt, board.timeZone, t.locale)}</time>
               </p>
@@ -90,23 +90,26 @@ export default async function HomePage({ params }: Props) {
         <h2 id="home-categories" className="text-2xl font-semibold">
           {t.home.categoriesTitle}
         </h2>
-        <ul className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {categories.map((category) => (
-            <li key={category.slug}>
-              <Link
-                href={to(catalogHref({ category: category.slug }))}
-                className="bg-surface-muted hover:bg-surface-tint flex h-full flex-col items-center gap-2 rounded-lg px-3 py-5 text-center"
-              >
-                <JewelArt kind={toJewelKind(category.slug)} className="size-14" />
-                <span className="font-semibold">{category.name}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        {/* Columns follow the text size, like the product grid: one per row when text is very large. */}
+        <div className="@container mt-5">
+          <ul className="grid grid-cols-1 gap-3 @min-[17.5rem]:grid-cols-2 @min-[36rem]:grid-cols-4">
+            {categories.map((category) => (
+              <li key={category.slug}>
+                <Link
+                  href={to(catalogHref({ category: category.slug }))}
+                  className="bg-surface-muted hover:bg-surface-tint flex h-full flex-col items-center gap-2 rounded-lg px-3 py-5 text-center"
+                >
+                  <JewelArt kind={toJewelKind(category.slug)} className="size-14" />
+                  <span className="font-semibold break-words">{category.name}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
       </section>
 
       <section className={`${container} pb-10`} aria-labelledby="home-featured">
-        <div className="flex items-end justify-between gap-4">
+        <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
           <h2 id="home-featured" className="text-2xl font-semibold">
             {t.home.featuredTitle}
           </h2>
@@ -116,13 +119,15 @@ export default async function HomePage({ params }: Props) {
           </Link>
         </div>
         {featured.length > 0 ? (
-          <ul className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
-            {featured.map((product) => (
-              <li key={product.id}>
-                <ProductCard product={product} t={t} sizes="(min-width: 768px) 25vw, 50vw" />
-              </li>
-            ))}
-          </ul>
+          <div className="@container mt-4">
+            <ul className={cardGridColumns}>
+              {featured.map((product) => (
+                <li key={product.id}>
+                  <ProductCard product={product} t={t} sizes="(min-width: 768px) 25vw, 50vw" />
+                </li>
+              ))}
+            </ul>
+          </div>
         ) : (
           <p className="text-muted-foreground mt-4">{t.home.featuredEmpty}</p>
         )}

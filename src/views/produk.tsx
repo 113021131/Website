@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
 import type { SlugViewProps } from "./types";
 import { Suspense } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PlayCircleIcon } from "lucide-react";
 import { JewelArt, toJewelKind } from "@/components/catalog/jewel-art";
 import { ProductCard } from "@/components/catalog/product-card";
+import { ProductPhoto } from "@/components/catalog/product-photo";
 import { ShareButton } from "@/components/product/share-button";
 import { MediaTabs } from "@/components/product/media-tabs";
 import { ReserveForm } from "@/components/product/reserve-form";
 import { TryOnSlot } from "@/components/product/slots";
 import { JsonLd } from "@/components/seo/json-ld";
-import { buttonSecondary, container } from "@/components/ui/styles";
+import { buttonSecondary, container, cardGridColumns } from "@/components/ui/styles";
 import { WhatsAppButton } from "@/components/whatsapp-button";
 import { ownerValue } from "@/config/owner";
 import { fill, getDictionary, localePath } from "@/i18n";
@@ -123,7 +123,7 @@ async function ProductDetail({ params }: Pick<Props, "params">) {
               tabIndex={0}
               aria-label={p.gallery}
               // Phone: swipe through the photos. Wide screen: every photo stacked, nothing hidden off to the side.
-              className="-mx-4 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 pb-2 [scrollbar-width:none] md:mx-0 md:grid md:gap-3 md:overflow-visible md:px-0 md:pb-0"
+              className="mx-[calc(var(--page-gutter)*-1)] flex snap-x snap-mandatory gap-2 overflow-x-auto px-(--page-gutter) pb-2 [scrollbar-width:none] md:mx-0 md:grid md:gap-3 md:overflow-visible md:px-0 md:pb-0"
             >
               {product.images.map((image, index) => (
                 <li
@@ -131,13 +131,15 @@ async function ProductDetail({ params }: Pick<Props, "params">) {
                   className="bg-surface-tint relative aspect-[4/5] w-[88%] shrink-0 snap-center overflow-hidden rounded-lg md:w-full"
                 >
                   <a href={image.url} target="_blank" rel="noopener noreferrer" className="block h-full">
-                    <Image
+                    <ProductPhoto
                       src={image.url}
                       alt={image.alt || fill(p.photoOf, { name: product.name })}
-                      fill
                       priority={index === 0}
                       sizes="(min-width: 768px) 36rem, 88vw"
                       className="object-cover"
+                      kind={toJewelKind(product.categorySlug)}
+                      fallbackLabel={t.catalog.noPhoto}
+                      size="large"
                     />
                   </a>
                   {product.images.length > 1 ? (
@@ -236,7 +238,7 @@ async function ProductDetail({ params }: Pick<Props, "params">) {
             <p className="bg-notice text-notice-foreground mt-5 rounded-sm px-3 py-2">{p.unavailable}</p>
           ) : null}
 
-          <section aria-labelledby="estimate-title" className="mt-5 rounded-sm border border-t-4 border-t-brand p-4">
+          <section aria-labelledby="estimate-title" className="@container mt-5 rounded-sm border border-t-4 border-t-brand p-4">
             <h2 id="estimate-title" className="text-lg font-semibold">
               {p.estimateTitle}
             </h2>
@@ -255,7 +257,7 @@ async function ProductDetail({ params }: Pick<Props, "params">) {
                 </dl>
                 <p className="mt-3 flex flex-wrap items-baseline justify-between gap-x-3 border-t-2 border-dashed pt-3">
                   <span className="font-semibold">{p.total}</span>
-                  <span className="font-display price text-[1.75rem] leading-9 font-semibold">
+                  <span className="font-display price price-fit font-semibold">
                     {formatIdr(estimate.totalIdr)}
                   </span>
                 </p>
@@ -315,13 +317,15 @@ async function ProductDetail({ params }: Pick<Props, "params">) {
             <h2 id="similar-title" className="text-2xl font-semibold">
               {p.similar}
             </h2>
-            <ul className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
-              {similar.map((item) => (
-                <li key={item.id}>
-                  <ProductCard product={item} t={t} sizes="(min-width: 768px) 25vw, 50vw" />
-                </li>
-              ))}
-            </ul>
+            <div className="@container mt-4">
+              <ul className={cardGridColumns}>
+                {similar.map((item) => (
+                  <li key={item.id}>
+                    <ProductCard product={item} t={t} sizes="(min-width: 768px) 25vw, 50vw" />
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </section>
       ) : null}
@@ -348,9 +352,10 @@ function BreakdownRow({ label, detail, amount }: { label: string; detail?: strin
     <div className="flex flex-wrap items-baseline justify-between gap-x-3">
       <dt>
         {label}
-        {detail ? <span className="price text-muted-foreground block text-sm">{detail}</span> : null}
+        {/* May wrap around the "×" with very large text; each number stays whole. */}
+        {detail ? <span className="text-muted-foreground block text-sm tabular-nums">{detail}</span> : null}
       </dt>
-      <dd className="price font-semibold">{formatIdr(amount)}</dd>
+      <dd className="price ml-auto font-semibold">{formatIdr(amount)}</dd>
     </div>
   );
 }

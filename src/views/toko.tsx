@@ -92,21 +92,26 @@ export default async function StorePage({ params }: Props) {
             {s.hours}
           </h2>
           {hours.length > 0 ? (
-            <table className="mt-2 w-full border-collapse">
-              <caption className="sr-only">{s.hours}</caption>
-              <tbody>
-                {hours.map((entry) => (
-                  <tr key={entry.day} className="border-b last:border-b-0">
-                    <th scope="row" className="py-2.5 text-left font-medium">
-                      {s.days[entry.day - 1]}
-                    </th>
-                    <td className="price py-2.5 text-right">
-                      {entry.closed ? s.closed : `${entry.open}–${entry.close}`}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            // Day → hours as a list rather than a table: when a long day name (English
+            // "Wednesday") and the hours don't fit side by side at a large text size,
+            // the hours move under the day instead of pushing the panel off-screen.
+            <dl className="mt-2">
+              {hours.map((entry) => (
+                <div key={entry.day} className="flex flex-wrap items-baseline justify-between gap-x-3 border-b py-2.5 last:border-b-0">
+                  <dt className="font-medium">{s.days[entry.day - 1]}</dt>
+                  <dd className="ml-auto text-right tabular-nums">
+                    {entry.closed ? (
+                      s.closed
+                    ) : (
+                      <>
+                        {entry.open}–<wbr />
+                        {entry.close}
+                      </>
+                    )}
+                  </dd>
+                </div>
+              ))}
+            </dl>
           ) : (
             <p className="text-muted-foreground mt-2">{s.pending}</p>
           )}
