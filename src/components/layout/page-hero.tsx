@@ -3,7 +3,7 @@ import { container } from "@/components/ui/styles";
 
 /**
  * The title band at the top of every public page: the page heading on the same
- * maroon surface as the site header, so each page opens the way the home page
+ * charcoal surface as the price board, so each page opens the way the price page
  * and the price board do. `children` is for a short extra line under the lead
  * (an update time, a notice).
  */

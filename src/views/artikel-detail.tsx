@@ -78,7 +78,7 @@ async function ArticleDetail({ params }: Pick<Props, "params">) {
         )}
       />
 
-      {/* Title band on the maroon surface, like every other page. */}
+      {/* Title band on the charcoal surface, like every other page. */}
       <header className="on-dark bg-board text-board-foreground">
         <div className={`${container} pt-1 pb-8 md:pt-6 md:pb-12`}>
           <Link

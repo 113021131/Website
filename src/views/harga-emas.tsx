@@ -12,7 +12,7 @@ import { ownerValue } from "@/config/owner";
 import { fill, getDictionary, localePath } from "@/i18n";
 import { roundingFromSettings } from "@/lib/catalog";
 import { getPriceHistory } from "@/lib/data/content";
-import { getPriceBoard, getPrimaryStore, getSiteSettings } from "@/lib/data/public";
+import { getPriceBoard, getPrimaryStore, getSiteSettings, getPricingSettings } from "@/lib/data/public";
 import { formatDateTime, formatIdr, formatWeight } from "@/lib/format";
 import { calculatePrice } from "@/lib/pricing/calculate";
 import { breadcrumbJsonLd, faqJsonLd, pageMetadata } from "@/lib/seo";
@@ -27,13 +27,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 /** A ruled line of the worked example: label, dotted leader, value. */
 function SlipRow({ label, value, strong = false }: { label: string; value: string; strong?: boolean }) {
   return (
-    <div className={strong ? "flex flex-wrap items-end gap-x-2 border-t-2 border-dashed pt-2.5" : "flex flex-wrap items-end gap-x-2"}>
+    <div
+      className={
+        strong ? "flex flex-wrap items-end gap-x-2 border-t-2 border-dashed pt-2.5" : "flex flex-wrap items-end gap-x-2"
+      }
+    >
       {/* The dotted leader lives inside the term, so the list stays a valid term/value pair. */}
       <dt className={strong ? "flex flex-1 items-end gap-2 font-semibold" : "flex flex-1 items-end gap-2"}>
         {label}
         <span aria-hidden="true" className="border-nota-leader mb-1.5 min-w-4 flex-1 border-b-2 border-dotted" />
       </dt>
-      <dd className={strong ? "font-display price price-fit ml-auto font-semibold [--price-fit-max:1.25rem]" : "price ml-auto font-semibold"}>
+      <dd
+        className={
+          strong
+            ? "font-display price price-fit ml-auto font-semibold [--price-fit-max:1.25rem]"
+            : "price ml-auto font-semibold"
+        }
+      >
         {value}
       </dd>
     </div>
@@ -44,10 +54,11 @@ export default async function GoldPricePage({ params }: Props) {
   const t = getDictionary((await params).locale);
   const p = t.pricePage;
   const to = (path: string) => localePath(t.locale, path);
-  const [board, store, settings, history] = await Promise.all([
+  const [board, store, settings, pricing, history] = await Promise.all([
     getPriceBoard(),
     getPrimaryStore(),
     getSiteSettings(),
+    getPricingSettings(),
     getPriceHistory(),
   ]);
 
@@ -77,7 +88,7 @@ export default async function GoldPricePage({ params }: Props) {
         )}
       />
 
-      {/* The price board, on the same maroon surface as the header and the home page. */}
+      {/* The price board, on the same charcoal surface as on the home page. */}
       <div className="on-dark bg-board text-board-foreground">
         <section
           aria-labelledby="price-title"
@@ -126,7 +137,10 @@ export default async function GoldPricePage({ params }: Props) {
         {history.length > 0 ? <PriceHistoryChart history={history} locale={t.locale} t={t.chart} /> : null}
 
         {/* How a price is worked out, written like the slip a customer gets in the shop. */}
-        <section aria-labelledby="formula-title" className="@container border-t-brand rounded-sm border border-t-4 bg-background p-[min(1rem,5vw)] md:p-6">
+        <section
+          aria-labelledby="formula-title"
+          className="@container bg-card border-t-gold rounded-sm border border-t-2 p-[min(1rem,5vw)] md:p-6"
+        >
           <h2 id="formula-title" className="text-2xl font-semibold">
             {p.formulaTitle}
           </h2>
@@ -137,7 +151,10 @@ export default async function GoldPricePage({ params }: Props) {
               <h3 className="text-muted-foreground mt-6 font-sans text-sm font-semibold">{p.exampleTitle}</h3>
               <dl className="mt-2 space-y-2.5">
                 <SlipRow label={p.calcWeight} value={formatWeight(exampleWeight)} />
-                <SlipRow label={fill(p.calcPrice, { karat: exampleRow.karatCode })} value={formatIdr(exampleRow.sellIdr)} />
+                <SlipRow
+                  label={fill(p.calcPrice, { karat: exampleRow.karatCode })}
+                  value={formatIdr(exampleRow.sellIdr)}
+                />
                 <SlipRow label={p.calcGold} value={formatIdr(example.totalIdr)} strong />
               </dl>
               <p className="text-muted-foreground mt-2 text-sm">
@@ -147,6 +164,37 @@ export default async function GoldPricePage({ params }: Props) {
           ) : null}
 
           <p className="mt-5">{p.formulaBody}</p>
+
+          {board.referenceIdr ? (
+            <div className="bg-surface-tint mt-4 rounded-sm px-3.5 py-3 text-sm">
+              <p className="flex flex-wrap items-baseline justify-between gap-x-3">
+                <span className="font-semibold">{t.price.reference}</span>
+                <span className="price font-semibold">
+                  {formatIdr(board.referenceIdr)}
+                  {t.price.perGramShort}
+                </span>
+              </p>
+              <p className="text-muted-foreground mt-1">
+                {t.price.status[board.status]}
+                {pricing.source ? ` · ${pricing.source}` : ""}
+                {pricing.retrievedAt ? `, ${formatDateTime(pricing.retrievedAt, board.timeZone, t.locale)}` : ""}
+                {pricing.sourceUrl ? (
+                  <>
+                    {" · "}
+                    <a
+                      href={pricing.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline underline-offset-4"
+                    >
+                      {t.price.sourceLink}
+                    </a>
+                  </>
+                ) : null}
+              </p>
+              <p className="text-muted-foreground mt-1">{t.price.referenceNote}</p>
+            </div>
+          ) : null}
           <Link
             href={to("/kalkulator")}
             className="text-brand mt-2 inline-flex min-h-11 items-center gap-1.5 font-semibold underline-offset-4 hover:underline"

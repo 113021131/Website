@@ -10,7 +10,7 @@ export function Wordmark({
   className,
 }: {
   name: string;
-  /** "light" sits on a light surface, "dark" on the maroon board. */
+  /** "light" sits on a light surface, "dark" on charcoal. */
   tone?: "light" | "dark";
   className?: string;
 }) {
@@ -26,7 +26,7 @@ export function Wordmark({
           fontSize="11"
           fontWeight="700"
           fill={stroke}
-          style={{ fontFamily: "var(--font-besley), serif", letterSpacing: "0.04em" }}
+          style={{ fontFamily: "var(--font-playfair), serif", letterSpacing: "0.04em" }}
         >
           SM
         </text>

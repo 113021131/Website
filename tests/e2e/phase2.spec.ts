@@ -1,10 +1,23 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
-const pages = [
+/** "Rp 6.823.000" → 6823000 */
+function digits(text: string) {
+  return Number(text.replace(/\D/g, ""));
+}
+
+/** Today's price per gram of one karat, read from the public board. Prices follow the 24K reference. */
+async function boardRow(page: Page, karat: string) {
+  await page.goto("/harga-emas");
+  const row = page.getByRole("row").filter({ has: page.getByRole("rowheader", { name: karat, exact: true }) });
+  const cells = await row.getByRole("cell").allInnerTexts();
+  return { sell: digits(cells[0]), buyback: digits(cells[1]) };
+}
+
+const pages: { path: string; heading: string | RegExp }[] = [
   { path: "/kalkulator", heading: "Kalkulator" },
   { path: "/artikel", heading: "Artikel" },
-  { path: "/en", heading: "Today's gold price" },
+  { path: "/en", heading: /Gold jewellery for the moments that matter/ },
   { path: "/en/harga-emas", heading: "Today's gold price" },
   { path: "/en/katalog", heading: "Jewellery catalogue" },
   { path: "/en/katalog/demo-cincin-polos-22k", heading: "Cincin Polos" },
@@ -22,7 +35,9 @@ for (const entry of pages) {
 
     await page.goto(entry.path);
     await expect(page.getByRole("heading", { level: 1, name: entry.heading })).toBeVisible();
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
     expect(overflow).toBeLessThanOrEqual(0);
 
     const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
@@ -38,7 +53,10 @@ test.describe("languages", () => {
     await expect(page).toHaveURL(/\/en\/katalog$/);
     await expect(page.getByRole("heading", { level: 1, name: "Jewellery catalogue" })).toBeVisible();
     // Links inside the English site stay in English.
-    await expect(page.getByRole("contentinfo").getByRole("link", { name: "Gold Price" })).toHaveAttribute("href", "/en/harga-emas");
+    await expect(page.getByRole("contentinfo").getByRole("link", { name: "Gold Price" })).toHaveAttribute(
+      "href",
+      "/en/harga-emas",
+    );
 
     await page.getByRole("link", { name: /Bahasa Indonesia/ }).click();
     await expect(page).toHaveURL(/\/katalog$/);
@@ -55,21 +73,32 @@ test.describe("languages", () => {
 
 test.describe("calculator", () => {
   test("estimates a jewellery price with the making fee and the shop's rounding", async ({ page }) => {
+    const { sell } = await boardRow(page, "22K");
     await page.goto("/kalkulator");
     const card = page.getByRole("region", { name: "Harga perhiasan" });
-    // 22K is preselected: 2,5 g × 1.800.000 = 4.500.000; ongkos 2,5 × 100.000 = 250.000.
+    // 22K is preselected: 2,5 g × today's 22K price; ongkos 2,5 × 100.000 = 250.000; then the shop margin.
     await card.getByLabel("Berat (gram)").fill("2,5");
     await card.getByLabel("Nilai ongkos").fill("100000");
-    await expect(card).toContainText("Rp 4.750.000");
     await expect(card).toContainText("Rp 250.000");
+    await expect(card).toContainText("Margin toko");
+    const parts = (await card.locator("dd").allInnerTexts()).map(digits);
+    expect(parts[0]).toBe(2.5 * sell);
+    const total = digits(await card.locator("p.price-fit").innerText());
+    expect(parts.reduce((sum, part) => sum + part, 0)).toBe(total);
+    expect(total % 1000).toBe(0);
   });
 
   test("estimates a buyback value from the buyback price, without fee or rounding up", async ({ page }) => {
+    const { buyback } = await boardRow(page, "22K");
     await page.goto("/kalkulator");
     const card = page.getByRole("region", { name: "Jual atau tukar tambah" });
-    // 22K buyback 1.650.000 × 1,337 g = 2.206.050
+    // 1,337 g × today's 22K buyback price, then rounded DOWN to Rp 1.000: money the customer receives.
     await card.getByLabel("Berat (gram)").fill("1,337");
-    await expect(card).toContainText("Rp 2.206.050");
+    const gross = Math.round(1.337 * buyback);
+    const total = digits(await card.locator("p.price-fit").innerText());
+    expect(total).toBe(Math.floor(gross / 1000) * 1000);
+    await expect(card).not.toContainText("Ongkos pembuatan");
+    await expect(card).not.toContainText("Margin toko");
   });
 
   test("explains what to type when the weight is not a number", async ({ page }) => {
@@ -97,11 +126,16 @@ test.describe("3D preview", () => {
     await page.getByRole("tab", { name: "Pratinjau 3D" }).click();
     // React hands the model to the custom element as a property, not an attribute.
     // The viewer library is fetched on demand, so allow it time on a busy machine.
-    await expect(page.locator("model-viewer")).toHaveCount(1, { timeout: 30_000 });
+    await expect(page.locator("model-viewer")).toHaveCount(1, {
+      timeout: 30_000,
+    });
     await expect
-      .poll(() => page.locator("model-viewer").evaluate((element) => (element as HTMLElement & { src: string | null }).src), {
-        timeout: 30_000,
-      })
+      .poll(
+        () => page.locator("model-viewer").evaluate((element) => (element as HTMLElement & { src: string | null }).src),
+        {
+          timeout: 30_000,
+        },
+      )
       .toMatch(/demo-cincin-polos-22k\.glb$/);
     await expect(page.getByText("Tampilan 3D adalah pratinjau. Foto asli tetap menjadi acuan.")).toBeVisible();
   });

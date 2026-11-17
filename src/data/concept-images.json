@@ -1,0 +1,40 @@
+{
+  "hero": null,
+  "products": {
+    "kalung-nirmala-hati": [
+      {
+        "src": "/images/products/necklaces/kalung-nirmala-hati-1.webp",
+        "width": 800,
+        "height": 800
+      }
+    ],
+    "kalung-swarna-padat": [
+      {
+        "src": "/images/products/necklaces/kalung-swarna-padat-1.webp",
+        "width": 640,
+        "height": 640
+      }
+    ],
+    "gelang-dahayu-rantai": [
+      {
+        "src": "/images/products/bracelets/gelang-dahayu-rantai-1.webp",
+        "width": 780,
+        "height": 780
+      }
+    ],
+    "anting-candramaya-bulat": [
+      {
+        "src": "/images/products/earrings/anting-candramaya-bulat-1.webp",
+        "width": 800,
+        "height": 800
+      }
+    ],
+    "anting-ayunda-tusuk": [
+      {
+        "src": "/images/products/earrings/anting-ayunda-tusuk-1.webp",
+        "width": 1200,
+        "height": 1200
+      }
+    ]
+  }
+}

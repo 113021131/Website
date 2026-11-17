@@ -33,6 +33,30 @@ Hal yang perlu diketahui:
 - **Riwayat perubahan** di bagian bawah mencatat setiap perubahan: waktu, kadar, harga, dan siapa yang mengubah.
 - Bila harga tidak diperbarui lebih dari 24 jam, situs otomatis menampilkan: "Harga dapat berubah, mohon konfirmasi via WhatsApp."
 
+## 2a. Rumus harga: satu harga acuan untuk semua (khusus pemilik)
+
+Buka **Admin → Rumus harga**. Di sini Anda cukup mengisi **satu angka**: harga acuan emas 24K per gram. Situs lalu menghitung sendiri harga per gram tiap kadar dan perkiraan harga semua perhiasan.
+
+1. Isi **Harga patokan pasar** (harga emas murni per gram dari sumber yang Anda percaya) dan, bila perlu, **Penyesuaian toko** dalam persen. Angka "Harga acuan yang dipakai" berubah saat Anda mengetik.
+2. Periksa tabel **Kemurnian tiap kadar**. Harga per gram = harga acuan × kemurnian. Ubah persennya bila kadar toko Anda berbeda.
+3. **Margin, pajak, dan beli kembali**: margin bawaan toko, pajak (biarkan 0 sampai Anda memastikan pajak yang berlaku), persen beli kembali, dan potongan per barang.
+4. Lihat **Pratinjau pada katalog**: harga beberapa perhiasan sekarang dan sesudah disimpan.
+5. Tekan **Simpan & hitung ulang**, baca peringatannya, lalu konfirmasi.
+
+Catatan:
+
+- Selama kotak "Ini angka simulasi" dicentang, situs menulis "Harga simulasi" di samping harga. Hapus centangnya setelah Anda mengisi harga toko yang sebenarnya.
+- Perhiasan yang harganya Anda tetapkan sendiri tidak ikut berubah.
+- Halaman **Harga** yang lama masih bisa dipakai untuk mengoreksi satu kadar, tetapi koreksi itu diganti lagi saat Rumus harga disimpan berikutnya.
+
+## 2b. Mengganti desain konsep dengan stok toko
+
+Dua belas perhiasan berlabel **Konsep** di katalog adalah desain contoh dengan harga ilustrasi, bukan stok toko. Untuk menggantinya:
+
+1. Masukkan perhiasan Anda yang sebenarnya lewat **Admin → Produk** (satu per satu, atau dengan impor CSV), lengkap dengan foto asli.
+2. Isi harga acuan toko di **Rumus harga** dan hapus centang "Ini angka simulasi".
+3. Buka **Admin → Toko** dan matikan **Mode contoh**. Semua desain konsep dan label contoh langsung hilang dari situs; yang tampil hanya produk Anda.
+
 ## 3. Menambah produk
 
 1. Buka **Produk** → **Tambah produk**.
@@ -52,6 +76,16 @@ Pilihan lain di formulir:
 - **Tampilkan di beranda**: produk muncul di "Pilihan dari etalase".
 - **Ukuran tersedia**: pisahkan dengan koma, contoh `10, 12, 14`.
 - **Status**: *Terbit* (tampil), *Terjual* atau *Stok habis* (tetap tampil, diberi tanda), *Draf* (disembunyikan).
+
+### Detail tambahan dan harga
+
+Di formulir produk, buka bagian **Detail tambahan dan harga** bila perlu:
+
+- **Kode produk (SKU)**, **berat keseluruhan** (termasuk batu), dan keterangan **batu dan mutiara**.
+- **Biaya batu dan bahan lain**: ditambahkan ke perkiraan harga sebagai baris tersendiri.
+- **Margin toko untuk produk ini**: kosongkan untuk memakai margin bawaan di Rumus harga.
+- **Harga ditetapkan manual**: bila diisi, situs menampilkan harga itu apa adanya dengan keterangan "Harga ditetapkan toko", dan harga tersebut tidak ikut berubah saat harga emas berubah. Kosongkan lagi untuk kembali ke perhitungan otomatis.
+- **Nama dan deskripsi bahasa Inggris**: dipakai di halaman `/en`. Bila kosong, halaman Inggris menampilkan teks Indonesia.
 
 ## 4. Mengunggah foto
 

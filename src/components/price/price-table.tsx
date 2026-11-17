@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 type Tone = "dark" | "light";
 
 /**
- * The price board: one row per karat, sell and buyback per gram. `dark` sits on the maroon hero.
+ * The price board: one row per karat, sell and buyback per gram. `dark` sits on the charcoal board.
  *
  * Three columns need roughly 19rem. When the box is narrower than that, which
  * happens on a 320 px phone or when a phone's text size is set large, each karat

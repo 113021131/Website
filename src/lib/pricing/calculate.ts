@@ -1,7 +1,11 @@
 /**
  * The one place a jewellery price is calculated.
  *
- *   estimated_price = weight_g × price_per_gram(karat) + labour_fee   → then rounded
+ *   gold value      = net weight × price_per_gram(karat)   (price_per_gram = 24K reference × purity)
+ *   estimated_price = gold value + workmanship + material + markup + tax   → then rounded
+ *
+ * Markup is charged on gold value + workmanship + material; tax on that plus the
+ * markup. Each part is counted once.
  *
  * Everything is integer arithmetic: weight in milligrams, money in whole Rupiah.
  * No floating-point money, so 0,1 g and Rp 100 juta+ on the same item stay exact.
@@ -27,6 +31,12 @@ export type PriceInput = {
   weightG: number | string;
   pricePerGramIdr: number;
   labourFee: LabourFee;
+  /** Gemstones and other non-gold material, whole Rupiah per item. Default 0. */
+  materialCostIdr?: number;
+  /** Retail markup, % of gold value + workmanship + material (2 decimals). Default 0. */
+  markupPercent?: number;
+  /** Tax or fee, % of everything above including markup (2 decimals). Default 0. */
+  taxPercent?: number;
   rounding: Rounding;
 };
 
@@ -35,6 +45,10 @@ export type PriceBreakdown = {
   pricePerGramIdr: number;
   goldValueIdr: number;
   labourFeeIdr: number;
+  materialCostIdr: number;
+  markupIdr: number;
+  taxIdr: number;
+  /** Everything above added up, before rounding. */
   subtotalIdr: number;
   /** totalIdr − subtotalIdr. Positive when rounded up. */
   roundingAdjustmentIdr: number;
@@ -99,10 +113,7 @@ export function applyRounding(amountIdr: number, rounding: Rounding): number {
   }
   const amount = BigInt(amountIdr);
   const step = BigInt(rounding.stepIdr);
-  const rounded =
-    rounding.mode === "up"
-      ? ((amount + step - 1n) / step) * step
-      : divRoundHalfUp(amount, step) * step;
+  const rounded = rounding.mode === "up" ? ((amount + step - 1n) / step) * step : divRoundHalfUp(amount, step) * step;
   return toSafeNumber(rounded, "rounded amount");
 }
 
@@ -143,9 +154,21 @@ export function calculatePrice(input: PriceInput): PriceBreakdown {
     }
   }
 
+  const materialCostIdr = input.materialCostIdr ?? 0;
+  if (!Number.isInteger(materialCostIdr) || materialCostIdr < 0) {
+    throw new RangeError(`materialCostIdr must be an integer ≥ 0, received ${materialCostIdr}`);
+  }
+  const markupBasisPoints = toScaledInteger(input.markupPercent ?? 0, 2, "markupPercent");
+  const taxBasisPoints = toScaledInteger(input.taxPercent ?? 0, 2, "taxPercent");
+  const cost = goldValue + labour + BigInt(materialCostIdr);
+  const markup = divRoundHalfUp(cost * markupBasisPoints, 10_000n);
+  const tax = divRoundHalfUp((cost + markup) * taxBasisPoints, 10_000n);
+
   const goldValueIdr = toSafeNumber(goldValue, "gold value");
   const labourFeeIdr = toSafeNumber(labour, "labour fee");
-  const subtotalIdr = toSafeNumber(goldValue + labour, "subtotal");
+  const markupIdr = toSafeNumber(markup, "markup");
+  const taxIdr = toSafeNumber(tax, "tax");
+  const subtotalIdr = toSafeNumber(cost + markup + tax, "subtotal");
   const totalIdr = applyRounding(subtotalIdr, rounding);
 
   return {
@@ -153,6 +176,9 @@ export function calculatePrice(input: PriceInput): PriceBreakdown {
     pricePerGramIdr,
     goldValueIdr,
     labourFeeIdr,
+    materialCostIdr,
+    markupIdr,
+    taxIdr,
     subtotalIdr,
     roundingAdjustmentIdr: totalIdr - subtotalIdr,
     totalIdr,

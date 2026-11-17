@@ -22,6 +22,17 @@ export type ProductFormValues = {
   featured: boolean;
   demo: boolean;
   videoUrl: string;
+  sku: string;
+  nameEn: string;
+  descriptionEn: string;
+  grossWeight: string;
+  gemstone: string;
+  gemstoneEn: string;
+  materialCost: string;
+  /** Empty = the site-wide default margin. */
+  markupPercent: string;
+  /** Empty = calculated from the gold price. */
+  manualPrice: string;
 };
 
 type Option = { id: number; label: string };
@@ -173,6 +184,96 @@ export function ProductForm({
           {f.sizesHint}
         </p>
       </div>
+
+      {/* Everything the price breakdown and the English page need beyond the basics. */}
+      <details
+        className="bg-card rounded-md border"
+        open={
+          Boolean(
+            values.sku ||
+              values.nameEn ||
+              values.descriptionEn ||
+              values.grossWeight ||
+              values.gemstone ||
+              values.markupPercent ||
+              values.manualPrice ||
+              (values.materialCost && values.materialCost !== "0") ||
+              state.errors.detail,
+          ) || undefined
+        }
+      >
+        <summary className="flex min-h-12 cursor-pointer items-center px-3 font-semibold">{f.detailsTitle}</summary>
+        <div className="grid gap-3 border-t p-3 sm:grid-cols-2">
+          <div>
+            <label htmlFor="product-sku" className={fieldLabel}>
+              {f.sku}
+            </label>
+            <input id="product-sku" name="sku" maxLength={40} autoComplete="off" defaultValue={values.sku} className={fieldInput} />
+          </div>
+          <div>
+            <label htmlFor="product-gross-weight" className={fieldLabel}>
+              {f.grossWeight}
+            </label>
+            <input id="product-gross-weight" name="grossWeight" inputMode="decimal" autoComplete="off" defaultValue={values.grossWeight} aria-describedby="hint-gross-weight" className={`${fieldInput} price`} />
+            <p id="hint-gross-weight" className={fieldHint}>
+              {f.grossWeightHint}
+            </p>
+          </div>
+          <div>
+            <label htmlFor="product-gemstone" className={fieldLabel}>
+              {f.gemstone}
+            </label>
+            <input id="product-gemstone" name="gemstone" maxLength={300} autoComplete="off" defaultValue={values.gemstone} className={fieldInput} />
+          </div>
+          <div>
+            <label htmlFor="product-material-cost" className={fieldLabel}>
+              {f.materialCost}
+            </label>
+            <input id="product-material-cost" name="materialCost" inputMode="numeric" autoComplete="off" defaultValue={values.materialCost} className={`${fieldInput} price`} />
+          </div>
+          <div>
+            <label htmlFor="product-markup" className={fieldLabel}>
+              {f.markupPercent}
+            </label>
+            <input id="product-markup" name="markupPercent" inputMode="decimal" autoComplete="off" defaultValue={values.markupPercent} aria-describedby="hint-markup" className={fieldInput} />
+            <p id="hint-markup" className={fieldHint}>
+              {f.markupHint}
+            </p>
+          </div>
+          <div>
+            <label htmlFor="product-manual-price" className={fieldLabel}>
+              {f.manualPrice}
+            </label>
+            <input id="product-manual-price" name="manualPrice" inputMode="numeric" autoComplete="off" defaultValue={values.manualPrice} aria-describedby="hint-manual-price" className={`${fieldInput} price`} />
+            <p id="hint-manual-price" className={fieldHint}>
+              {f.manualPriceHint}
+            </p>
+          </div>
+          <div className="sm:col-span-2">
+            <label htmlFor="product-name-en" className={fieldLabel}>
+              {f.nameEn}
+            </label>
+            <input id="product-name-en" name="nameEn" maxLength={200} autoComplete="off" lang="en" defaultValue={values.nameEn} className={fieldInput} />
+          </div>
+          <div className="sm:col-span-2">
+            <label htmlFor="product-description-en" className={fieldLabel}>
+              {f.descriptionEn}
+            </label>
+            <textarea id="product-description-en" name="descriptionEn" rows={3} maxLength={4000} lang="en" defaultValue={values.descriptionEn} className={fieldInput} />
+          </div>
+          <div className="sm:col-span-2">
+            <label htmlFor="product-gemstone-en" className={fieldLabel}>
+              {f.gemstoneEn}
+            </label>
+            <input id="product-gemstone-en" name="gemstoneEn" maxLength={300} autoComplete="off" lang="en" defaultValue={values.gemstoneEn} className={fieldInput} />
+          </div>
+          {state.errors.detail ? (
+            <p role="alert" className={`${fieldError} sm:col-span-2`}>
+              {state.errors.detail}
+            </p>
+          ) : null}
+        </div>
+      </details>
 
       <fieldset>
         <legend className={fieldLabel}>{f.occasions}</legend>

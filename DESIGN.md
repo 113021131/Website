@@ -1,25 +1,25 @@
 # Toko Sinar Mas — design system
 
-Status: **proposal, Phase 0.** No logo or brand colours were supplied, so everything here is proposed and open to change. The homepage hero has three directions in the prototype picker (`/prototypes/hero`); this file describes what all three share.
+Status: **revision 2, 16 Nov 2026.** The owner asked for a premium boutique look: warm ivory, champagne gold as an accent, deep charcoal, an elegant serif for headings. This replaces the maroon "beludru" direction of revision 1. Still no logo, so the mark in §5 remains a placeholder.
 
 ## 1. Where the look comes from
 
-A toko emas has its own visual world, and the site borrows from it rather than from generic "luxury":
+A jeweller's boutique: pale walls, one dark counter, gold only where the eye should go.
 
-| In the shop | On the site |
+| In the boutique | On the site |
 |---|---|
-| Gold laid out on a maroon velvet tray | **Beludru** maroon is the brand colour; gold only ever sits on it or beside it as an accent |
-| The price board behind the counter | The live price board/strip is the first thing on the home page |
-| The handwritten *surat emas* (nota) with ruled lines and a stamp | Dotted leaders, ruled rows and a stamped "Diperbarui" time for price data |
-| The hallmark punched into every piece (750, 999, maker's mark) | A small "SM" hallmark cartouche as the proposed mark |
-| A shopkeeper's ledger | **Besley**, a Clarendon — the sturdy letter of ledgers and shop signs — for headings and big prices |
+| Ivory walls and display stands | Ivory page, white cards, soft beige for alternate bands |
+| The dark counter the trays are set on | Charcoal for the price board, page title bands, footer and primary buttons |
+| Gold itself | Champagne gold only as an accent: thin rules, eyebrows, one gold button on the home hero |
+| The price board behind the counter | Today's 24K price in a slim strip above the header on every page; the full board is the second section of the home page |
+| The handwritten *surat emas* | Every estimate is itemised like a receipt: gold value, workmanship, stones, margin, total |
 
-Feeling: warm, established, clear. Not fashion-luxury (no hairline serifs, no black-and-gold), not a template.
+Feeling: calm, exact, expensive without shouting. Not black-and-gold, not gradients, not a template.
 
 ## 2. Principles
 
-1. **The price is the hero.** Today's price per gram is visible without scrolling at 360 px wide, always with its "Diperbarui" time.
-2. **Gold is an accent, never a text colour on white.** Bright gold fails contrast on white, so it is used for rules, fills and on maroon. Text-on-light uses the darker `gold-ink`.
+1. **The price is always in view.** Today's 24K price per gram sits in the strip above the header on every page; the full board, with its "Diperbarui" time, is the second section of the home page.
+2. **Gold is an accent, never a text colour on white.** Bright gold fails contrast on white, so it is used for rules, fills and on charcoal. Text-on-light uses the darker `gold-ink`.
 3. **Real photos are the truth.** No effects on product imagery. 3D is labelled as a preview.
 4. **One thumb, one hand, mid-range Android.** 48 px touch targets, 16 px minimum body text, no hover-only behaviour, nothing that shifts layout after load.
 5. **Say it plainly.** Short Indonesian sentences, the shop speaking politely to a customer.
@@ -30,67 +30,63 @@ Three layers, all CSS variables in `src/app/globals.css`. Components use **seman
 
 ```
 Primitive (raw value)  →  Semantic (purpose)  →  Component (one component's needs)
---beludru-800          →  --brand             →  --price-board-bg
+--arang-900            →  --brand             →  --price-board-bg
 ```
 
 ### 3.1 Primitive colours
 
 | Token | Hex | Note |
 |---|---|---|
-| `--beludru-950` | `#2E0710` | deepest maroon |
-| `--beludru-900` | `#4A0C1A` | tray |
-| `--beludru-800` | `#5E0F1F` | **brand** |
-| `--beludru-700` | `#7A1A2C` | hover |
-| `--beludru-100` / `-50` | `#F6E4E6` / `#FBF3F4` | tints |
-| `--emas-300` | `#F0CF7A` | gold on maroon |
-| `--emas-400` | `#E0B341` | gold rules, fills |
-| `--emas-500` | `#C9992A` | |
-| `--emas-700` | `#8A6410` | gold text/icons on light |
-| `--emas-50` | `#FBF5E6` | gold tint surface |
-| `--kertas-0` / `-50` | `#FFFFFF` / `#F7F4F0` | paper |
-| `--tinta-900` | `#1F1517` | ink (body text) |
-| `--tinta-600` | `#5B4E50` | secondary text |
-| `--tinta-400` | `#948A88` | input borders (3:1 on white) |
-| `--tinta-300` / `-200` | `#CFC6C4` / `#E6DFDC` | leaders, dividers |
+| `--arang-950` / `-900` / `-800` / `-700` | `#171512` / `#25221E` / `#38342E` / `#4C463E` | charcoal: ink and dark surfaces (900 is the owner's "deep charcoal") |
+| `--sampanye-400` | `#C6A15B` | **champagne gold**, the accent |
+| `--sampanye-300` / `-200` | `#DCC591` / `#E8D9B8` | gold on charcoal |
+| `--sampanye-500` / `-700` | `#AB8640` / `#7A5C20` | 700 is gold-coloured text and icons on light |
+| `--sampanye-50` | `#F3ECDD` | gold tint surface |
+| `--gading-0` / `-50` | `#FFFFFF` / `#F8F5EF` | white cards / **warm ivory** page |
+| `--gading-200` / `-300` | `#EAE3D8` / `#DDD4C5` | **soft beige** bands / dividers |
+| `--abu-300` / `-500` / `-700` | `#CFC8BC` / `#8C8377` / `#5F584E` | muted text on charcoal / input borders / secondary text |
 | `--hijau-wa-700` / `-800` | `#0F7A5B` / `#0B6149` | WhatsApp button and its hover |
-| `--kuning-50` / `-900` | `#FFF4D6` / `#6B4A00` | notices |
-| `--merah-600` | `#B3261E` | errors (kept distinct from brand maroon) |
+| `--kuning-50` / `-900` | `#F4E8C9` / `#5C4300` | notices, "Konsep" badges |
+| `--merah-600` | `#B3261E` | errors |
 | `--hijau-700` | `#1E6B3A` | success |
 
 ### 3.2 Semantic colours
 
 | Token | Maps to | Use |
 |---|---|---|
-| `--background` / `--foreground` | kertas-0 / tinta-900 | page and body text |
-| `--surface-muted` | kertas-50 | alternate sections |
-| `--surface-tint` | emas-50 | price strip, highlights |
-| `--brand` / `--brand-deep` / `--brand-hover` / `--brand-foreground` | beludru 800 / 900 / 700 / white | primary buttons, price board |
-| `--gold` | emas-400 | rules, icons on dark, fills |
-| `--gold-ink` | emas-700 | gold-coloured text or icons on light |
-| `--gold-bright` | emas-300 | gold text on maroon |
+| `--background` / `--foreground` | gading-50 / arang-900 | page and body text |
+| `--card` | gading-0 | product cards, panels, form fields |
+| `--surface-muted` | gading-200 | alternate sections, skeletons |
+| `--surface-tint` | sampanye-50 | highlights, photo stand-ins |
+| `--brand` / `--brand-deep` / `--brand-hover` / `--brand-foreground` | arang 900 / 950 / 800 / gading-50 | primary buttons, price board, title bands, footer |
+| `--gold` | sampanye-400 | rules, the hero button, borders that mark something important |
+| `--gold-ink` | sampanye-700 | gold-coloured text or icons on light |
+| `--gold-bright` | sampanye-300 | gold text on charcoal |
 | `--whatsapp` / `--whatsapp-hover` | hijau-wa 700 / 800 | WhatsApp actions only |
-| `--notice` / `--notice-foreground` | kuning 50 / 900 | "harga dapat berubah", demo data |
-| `--muted-foreground` | tinta-600 | captions, meta |
-| `--border` / `--input` | tinta-200 / tinta-400 | dividers / form field borders |
+| `--notice` / `--notice-foreground` | kuning 50 / 900 | demo data, concept designs, "harga dapat berubah" |
+| `--muted-foreground` | abu-700 | captions, meta |
+| `--border` / `--input` | gading-300 / abu-500 | dividers / form field borders |
 | `--ring` | brand (gold-bright inside `.on-dark`) | keyboard focus |
-| `--destructive` / `--success` | merah-600 / hijau-700 | errors / confirmations |
 
-The shadcn/ui variables (`--primary`, `--secondary`, `--accent`, `--card`, …) are aliases of these, so shadcn components pick the theme up unchanged.
+The shadcn/ui variables (`--primary`, `--secondary`, `--accent`, …) are aliases of these.
 
 ### 3.3 Contrast (WCAG 2.1 AA, calculated)
 
 | Pair | Ratio | Passes |
 |---|---|---|
-| ink on white | 17.0 : 1 | AAA |
-| secondary text (tinta-600) on white | 7.9 : 1 | AAA |
-| white on brand maroon | 13.4 : 1 | AAA |
-| gold-bright on brand maroon | 8.9 : 1 | AAA |
-| gold-ink on white | 5.4 : 1 | AA |
+| ink on ivory | 14.6 : 1 | AAA |
+| secondary text on ivory / on soft beige | 6.4 : 1 / 5.5 : 1 | AA |
+| ivory on charcoal | 14.6 : 1 | AAA |
+| gold-bright on charcoal | 9.4 : 1 | AAA |
+| muted text on charcoal | 9.5 : 1 | AAA |
+| gold-ink on ivory / white / gold tint | 5.7 / 6.2 / 5.3 : 1 | AA |
+| charcoal on champagne gold (hero button) | 6.5 : 1 | AA |
+| WhatsApp green on ivory (outline button) | 4.9 : 1 | AA |
 | white on WhatsApp green | 5.3 : 1 | AA |
-| notice text on notice background | 7.5 : 1 | AAA |
-| input border (tinta-400) on white | 3.4 : 1 | AA for UI components |
+| notice text on notice background | 7.6 : 1 | AAA |
+| input border on white | 3.7 : 1 | AA for UI components |
 
-Bright gold (`--gold`) on white is 1.9 : 1 and is **never** used for text.
+Champagne gold (`--gold`) on ivory is 2.2 : 1 and is **never** used for text. Re-checked with axe on every public page by the end-to-end tests.
 
 ### 3.4 Component tokens
 
@@ -106,8 +102,10 @@ Bright gold (`--gold`) on white is 1.9 : 1 and is **never** used for text.
 
 | Role | Family | Why |
 |---|---|---|
-| Display: headings, large prices | **Besley** (variable, 400–900) | Clarendon: ledger and shop-sign letterforms, sturdy at small sizes on low-density screens |
-| Text and UI | **Plus Jakarta Sans** (variable) | Drawn in Indonesia for Jakarta; open, very readable in Bahasa Indonesia |
+| Display: headings, large prices | **Playfair Display** (variable, 400–900, with italic) | A high-contrast transitional serif: reads as fine jewellery, and its italic gives the hero one gold accent phrase. Headings sit at weight 500 so the thin strokes survive on low-density phone screens |
+| Text and UI | **Plus Jakarta Sans** (variable) | Unchanged: drawn in Indonesia, open and very readable in Bahasa Indonesia |
+
+Section titles carry an "eyebrow" above them (the `eyebrow` utility): 12 px spaced capitals in gold-ink with a short rule.
 
 Both load through `next/font` (self-hosted, Latin subset, `display: swap`). All prices and weights use the `price` utility: tabular lining figures, no wrapping.
 
@@ -129,7 +127,7 @@ Body line length stays under about 70 characters. Headings use `text-wrap: balan
 ### 3.6 Spacing, radius, elevation
 
 - Spacing: 4 px base — 4, 8, 12, 16, 24, 32, 48, 64, 96 (`--space-1` … `--space-24`). Page gutter 16 px, respecting safe-area insets. Content max width 72 rem.
-- Radius carries meaning, not one value everywhere: `sm` 2 px for paper-like things (nota, price rows), `md` 6 px for buttons and inputs, `lg` 10 px for product cards, `xl` 16 px for the velvet tray.
+- Radius is deliberately tight, like the corners of a jeweller's card: `sm` 2 px, `md` 3 px for buttons, inputs and product cards, `lg` 4 px, `xl` 6 px. Nothing is pill-shaped. Content max width 76 rem.
 - Elevation: borders first. One soft shadow is reserved for things that really float (menus, toasts).
 
 ### 3.7 Motion
@@ -143,19 +141,19 @@ Body line length stays under about 70 characters. Headings use `text-wrap: balan
 
 | Component | Default | Pressed / hover | Focus | Disabled |
 |---|---|---|---|---|
-| Primary button | brand bg, white text, 48 px tall, radius md | brand-hover (hover only on real pointers), scale 0.98 while pressed | 2 px ring, 2 px offset | muted bg, muted text |
+| Primary button | charcoal bg, ivory text, 48 px tall, radius md. The home hero alone uses the gold button | brand-hover (hover only on real pointers), scale 0.98 while pressed | 2 px ring, 2 px offset | muted bg, muted text |
 | WhatsApp button | whatsapp bg, white text + WhatsApp glyph, 48 px | whatsapp-hover | same ring | shown as a notice when the number is missing |
 | Secondary button | 1 px ink border, transparent | surface-muted | same ring | muted |
 | Input | 48 px, 1 px `--input` border, 16 px text, visible label above | — | ring + border brand | muted bg |
 | Price row | karat code in display type; amounts right-aligned, tabular | — | — | — |
 | Notice | notice bg/fg, icon + text, radius sm | — | — | — |
-| Product card | photo 4:5, name (2 lines max, then ellipsis), karat and weight, estimated price, WhatsApp action | — | ring on the whole card link | "Terjual" / "Stok habis" badge, photo dimmed, still visible |
+| Product card | square photo on white, category eyebrow, name (2 lines max, then ellipsis), karat and net gold weight, estimated price in display type; "Konsep" or "Contoh" badge on anything that is not real stock | — | ring on the whole card link | "Terjual" / "Stok habis" badge, photo dimmed, still visible |
 
 States every data component must have: loading (skeleton that reserves the final height), empty, error, and stale (price older than 24 hours).
 
 ## 5. Proposed mark
 
-Wordmark "Toko Sinar Mas" in Besley 600, with an "SM" hallmark cartouche (rounded rectangle, 1.5 px gold-ink outline) as the compact mark and favicon. A placeholder until the owner supplies or approves a logo.
+Wordmark "Toko Sinar Mas" in Playfair Display 600, with an "SM" hallmark cartouche (rounded rectangle, 1.5 px gold-ink outline) as the compact mark and favicon. A placeholder until the owner supplies or approves a logo.
 
 ## 6. Tone of voice (Bahasa Indonesia)
 

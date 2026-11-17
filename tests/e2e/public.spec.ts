@@ -1,14 +1,23 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
-const LONG_NAME = "Set Cincin Kawin Sepasang Ukir Nama dengan Kotak Beludru untuk Akad Nikah dan Resepsi Keluarga Besar";
+const LONG_NAME =
+  "Set Cincin Kawin Sepasang Ukir Nama dengan Kotak Beludru untuk Akad Nikah dan Resepsi Keluarga Besar";
 
-const pages = [
-  { path: "/", heading: "Harga emas hari ini" },
+/** "Rp 6.823.000" → 6823000 */
+function digits(text: string) {
+  return Number(text.replace(/\D/g, ""));
+}
+
+const pages: { path: string; heading: string | RegExp }[] = [
+  { path: "/", heading: /Perhiasan emas untuk setiap momen berharga/ },
   { path: "/harga-emas", heading: "Harga emas hari ini" },
   { path: "/katalog", heading: "Katalog perhiasan" },
   { path: "/katalog/demo-set-cincin-kawin", heading: LONG_NAME },
-  { path: "/katalog/demo-kalung-rantai-padat-24k", heading: "Kalung Rantai Padat" },
+  {
+    path: "/katalog/demo-kalung-rantai-padat-24k",
+    heading: "Kalung Rantai Padat",
+  },
   { path: "/toko", heading: "Toko kami" },
   { path: "/layanan", heading: "Layanan" },
   { path: "/kepercayaan", heading: "Membeli emas dengan tenang" },
@@ -41,12 +50,15 @@ for (const entry of pages) {
 }
 
 test.describe("home", () => {
-  test("shows the live price board and its update time above the fold", async ({ page }) => {
+  test("shows today's 24K price above the fold, and the full board with its update time", async ({ page }) => {
     await page.goto("/");
+    // The strip at the very top carries the price a gold shop's customer looks for first.
+    await expect(page.getByRole("banner").getByText(/Rp\s[\d.]+\/gram/)).toBeInViewport({ ratio: 1 });
     const main = page.getByRole("main");
-    await expect(main.getByRole("rowheader", { name: "24K" })).toBeInViewport({ ratio: 1 });
-    await expect(main.getByRole("rowheader", { name: "16K" })).toBeInViewport({ ratio: 1 });
-    await expect(main.getByText(/Diperbarui: \d{2} \w{3} \d{4} \d{2}:\d{2} WI[BT]A?/).first()).toBeInViewport({ ratio: 1 });
+    await expect(main.getByRole("rowheader", { name: "24K" })).toBeVisible();
+    await expect(main.getByRole("rowheader", { name: "18K" })).toBeVisible();
+    await expect(main.getByText(/Diperbarui: \d{2} \w{3} \d{4} \d{2}:\d{2} WI[BT]A?/).first()).toBeVisible();
+    await expect(main.getByText("Harga acuan emas 24K", { exact: true })).toBeVisible();
   });
 
   test("has JewelryStore structured data without invented facts", async ({ page }) => {
@@ -61,7 +73,8 @@ test.describe("home", () => {
     await page.goto("/");
     await page.getByRole("main").getByRole("link", { name: "Cincin", exact: true }).click();
     await expect(page).toHaveURL(/\/katalog\?jenis=cincin$/);
-    await expect(page.getByRole("status")).toHaveText("2 perhiasan");
+    // The concept collection has three rings.
+    await expect(page.getByRole("status")).toHaveText("3 perhiasan");
   });
 });
 
@@ -79,7 +92,9 @@ test.describe("catalogue filters", () => {
     await page.goto("/katalog");
     await expect(page.getByRole("status")).toHaveText("12 perhiasan");
 
-    await page.locator("summary").click();
+    // On a phone the filters fold away behind "Saring"; on a wide screen they are always open.
+    const summary = page.locator("summary");
+    if (await summary.isVisible()) await summary.click();
     await page.getByLabel("Kadar").selectOption("22K");
     await page.getByRole("button", { name: "Terapkan" }).click();
 
@@ -90,11 +105,41 @@ test.describe("catalogue filters", () => {
     for (const detail of details) expect(detail).toContain("22K");
   });
 
-  test("sorting by highest price puts the Rp 100 juta+ item first", async ({ page }) => {
+  test("sorting by highest price puts the heaviest set first and keeps prices in order", async ({ page }) => {
     await page.goto("/katalog?urut=harga-turun");
-    const first = page.getByRole("article").first();
-    await expect(first).toContainText("Kalung Rantai Padat");
-    await expect(first).toContainText("Rp 126.000.000");
+    const cards = page.getByRole("article");
+    await expect(cards.first()).toContainText("Set Mas Kawin Anindya");
+    const prices = (await cards.locator("span.font-display").allInnerTexts()).map(digits);
+    expect(prices.length).toBe(12);
+    expect(prices).toEqual([...prices].sort((a, b) => b - a));
+  });
+
+  test("the price range and type filters narrow the list and are kept in the URL", async ({ page }) => {
+    await page.goto("/katalog");
+    // Wait for the results to stream in before asking whether the filters are folded.
+    await expect(page.getByRole("status")).toHaveText("12 perhiasan");
+    const summary = page.locator("summary");
+    if (await summary.isVisible()) await summary.click();
+    await page.getByLabel("Harga sampai (Rp)").fill("7.000.000");
+    await page.getByLabel("Tipe").selectOption("bermata");
+    await page.getByRole("button", { name: "Terapkan" }).click();
+
+    await expect(page).toHaveURL(/tipe=bermata/);
+    await expect(page).toHaveURL(/hmaks=7.000.000/);
+    const prices = (await page.getByRole("article").locator("span.font-display").allInnerTexts()).map(digits);
+    expect(prices.length).toBeGreaterThan(0);
+    for (const price of prices) expect(price).toBeLessThanOrEqual(7_000_000);
+    await expect(page.getByRole("article").filter({ hasText: "Cincin Arunika Polos" })).toHaveCount(0);
+  });
+
+  test("every concept design is labelled in the list", async ({ page }) => {
+    await page.goto("/katalog");
+    await expect(
+      page.getByText("Katalog ini berisi desain konsep dengan harga ilustrasi. Bukan stok toko."),
+    ).toBeVisible();
+    const cards = page.getByRole("article");
+    await expect(cards).toHaveCount(12);
+    await expect(cards.getByText("Konsep", { exact: true })).toHaveCount(12);
   });
 
   test("a search with no matches shows a way forward, not a blank page", async ({ page }) => {
@@ -108,23 +153,65 @@ test.describe("catalogue filters", () => {
     await expect(page.getByRole("status")).toHaveText("0 perhiasan");
   });
 
-  test("sold and out-of-stock items stay visible but marked", async ({ page }) => {
-    await page.goto("/katalog?jenis=anting");
-    await expect(page.getByRole("article").filter({ hasText: "Anting Bulat" })).toContainText("Terjual");
-    await page.goto("/katalog?jenis=liontin");
-    await expect(page.getByRole("article").filter({ hasText: "Liontin Huruf" })).toContainText("Stok habis");
-    await expect(page.getByRole("article").filter({ hasText: "Liontin Koin" })).toContainText("Harga sesuai permintaan");
+  // The older placeholder products are no longer listed beside the concept collection,
+  // but their pages still exist and are the fixtures for these states.
+  test("sold, out-of-stock and price-on-request items stay reachable and are marked", async ({ page }) => {
+    await page.goto("/katalog/demo-anting-bulat-17k");
+    await expect(page.getByRole("main").getByText("Terjual", { exact: true })).toBeVisible();
+    await page.goto("/katalog/demo-liontin-huruf-18k");
+    await expect(page.getByRole("main").getByText("Stok habis", { exact: true })).toBeVisible();
+    await page.goto("/katalog/demo-liontin-koin-24k");
+    await expect(page.getByRole("region", { name: "Perkiraan harga hari ini" })).toContainText(
+      "Harga perhiasan ini kami sampaikan langsung",
+    );
   });
 });
 
 test.describe("product page", () => {
   test("shows the price breakdown that adds up", async ({ page }) => {
-    // 3,5 g × Rp 1.800.000 = 6.300.000; ongkos 3,5 × 150.000 = 525.000; total 6.825.000
-    await page.goto("/katalog/demo-cincin-polos-22k");
-    const estimate = page.getByRole("region", { name: "Perkiraan harga hari ini" });
-    await expect(estimate).toContainText("Rp 6.300.000");
-    await expect(estimate).toContainText("Rp 525.000");
-    await expect(estimate).toContainText("Rp 6.825.000");
+    // Kirana Solitaire: 3,2 g of 18K, ongkos Rp 650.000, batu Rp 150.000, plus the shop margin.
+    // The gold price follows the 24K reference, so the test adds the parts up instead of fixing them.
+    await page.goto("/katalog/cincin-kirana-solitaire");
+    const estimate = page.getByRole("region", {
+      name: "Perkiraan harga hari ini",
+    });
+    await expect(estimate).toContainText("Rp 650.000");
+    await expect(estimate).toContainText("Rp 150.000");
+    await expect(estimate).toContainText("Margin toko");
+
+    const [weight, perGram] = (await estimate.locator("dt span").first().innerText()).split("×");
+    const parts = (await estimate.locator("dd").allInnerTexts()).map(digits);
+    expect(parts[0]).toBe(Math.round((digits(weight) / 10) * digits(perGram)));
+    const total = digits(await estimate.locator("p span.price").innerText());
+    expect(parts.reduce((sum, part) => sum + part, 0)).toBe(total);
+    expect(total % 1000).toBe(0);
+  });
+
+  test("a concept design says so, shows its buyback estimate, and cannot be reserved", async ({ page }) => {
+    await page.goto("/katalog/cincin-kirana-solitaire");
+    await expect(page.getByText("DESAIN KONSEP — HARGA ILUSTRASI — BUKAN STOK TOKO")).toBeVisible();
+    await expect(page.getByText("SM-CN-001")).toBeVisible();
+
+    const buyback = page.getByRole("region", {
+      name: "Perkiraan nilai beli kembali",
+    });
+    await expect(buyback).toContainText("bukan penawaran resmi toko");
+    const estimate = digits(
+      await page.getByRole("region", { name: "Perkiraan harga hari ini" }).locator("p span.price").innerText(),
+    );
+    const offer = digits(await buyback.locator("p span.price").innerText());
+    expect(offer).toBeGreaterThan(0);
+    expect(offer).toBeLessThan(estimate);
+
+    await expect(page.getByRole("button", { name: "Reservasi ambil di toko" })).toHaveCount(0);
+    const blocks = await page.locator('script[type="application/ld+json"]').allTextContents();
+    expect(blocks.map((block) => JSON.parse(block)["@type"])).not.toContain("Product");
+  });
+
+  test("the English page carries the required concept notice word for word", async ({ page }) => {
+    await page.goto("/en/katalog/cincin-kirana-solitaire");
+    await expect(page.getByRole("heading", { level: 1, name: "Kirana Solitaire Ring" })).toBeVisible();
+    await expect(page.getByText("DESIGN CONCEPT — ILLUSTRATIVE PRICE — NOT ACTUAL STORE INVENTORY")).toBeVisible();
   });
 
   test("handles a tiny weight and a missing photo", async ({ page }) => {
@@ -164,7 +251,7 @@ test.describe("SEO files", () => {
 });
 
 test.describe("admin auth guard", () => {
-  for (const path of ["/admin", "/admin/harga", "/admin/produk", "/admin/produk/1", "/admin/toko"]) {
+  for (const path of ["/admin", "/admin/harga", "/admin/rumus", "/admin/produk", "/admin/produk/1", "/admin/toko"]) {
     test(`${path} sends a visitor without a session to the login page`, async ({ page }) => {
       await page.goto(path);
       await expect(page).toHaveURL(/\/admin\/login$/);
@@ -189,7 +276,9 @@ test.describe("large text setting (200%)", () => {
     page.evaluate(
       () =>
         new Promise<number>((resolve) =>
-          requestAnimationFrame(() => resolve(document.documentElement.scrollWidth - document.documentElement.clientWidth)),
+          requestAnimationFrame(() =>
+            resolve(document.documentElement.scrollWidth - document.documentElement.clientWidth),
+          ),
         ),
     );
 
@@ -215,11 +304,12 @@ test.describe("large text setting (200%)", () => {
     await page.goto("/harga-emas");
     const board = page.getByRole("table", { name: /Harga emas hari ini/ });
     await expect(board).toBeVisible();
+    const karats = await board.locator("tbody tr").count();
     await page.addStyleTag({ content: "html{font-size:200%}" });
     await expect(board).toBeHidden();
     const list = page.getByRole("list", { name: /Harga emas hari ini/ });
     await expect(list).toBeVisible();
-    await expect(list.getByRole("listitem")).toHaveCount(5);
+    await expect(list.getByRole("listitem")).toHaveCount(karats);
   });
 });
 
@@ -228,8 +318,8 @@ test("a product photo that fails to load shows the drawing, not a broken image",
     (url) => url.pathname === "/_next/image" && (url.searchParams.get("url") ?? "").includes("demo-cincin-polos-22k-1"),
     (route) => route.fulfill({ status: 404, body: "" }),
   );
-  await page.goto("/katalog");
-  const card = page.getByRole("article").filter({ hasText: "Cincin Polos" });
-  await expect(card.getByText("Foto belum tersedia")).toBeVisible();
-  await expect(card.locator("img")).toHaveCount(0);
+  await page.goto("/katalog/demo-cincin-polos-22k");
+  const first = page.getByRole("list", { name: "Foto produk" }).getByRole("listitem").first();
+  await expect(first.getByText("Foto belum tersedia")).toBeVisible();
+  await expect(first.locator("img")).toHaveCount(0);
 });

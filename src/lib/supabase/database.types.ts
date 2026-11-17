@@ -367,6 +367,16 @@ export type Database = {
           description: string | null
           id: number
           is_demo: boolean
+          sku: string | null
+          name_en: string | null
+          description_en: string | null
+          gross_weight_g: number | null
+          gemstone_details: string | null
+          gemstone_details_en: string | null
+          material_cost_idr: number
+          markup_percent: number | null
+          manual_price_idr: number | null
+          specs: Json
           is_featured: boolean
           karat_id: number
           labour_fee_type: Database["public"]["Enums"]["labour_fee_type"]
@@ -395,6 +405,16 @@ export type Database = {
           description?: string | null
           id?: never
           is_demo?: boolean
+          sku?: string | null
+          name_en?: string | null
+          description_en?: string | null
+          gross_weight_g?: number | null
+          gemstone_details?: string | null
+          gemstone_details_en?: string | null
+          material_cost_idr?: number
+          markup_percent?: number | null
+          manual_price_idr?: number | null
+          specs?: Json
           is_featured?: boolean
           karat_id: number
           labour_fee_type?: Database["public"]["Enums"]["labour_fee_type"]
@@ -423,6 +443,16 @@ export type Database = {
           description?: string | null
           id?: never
           is_demo?: boolean
+          sku?: string | null
+          name_en?: string | null
+          description_en?: string | null
+          gross_weight_g?: number | null
+          gemstone_details?: string | null
+          gemstone_details_en?: string | null
+          material_cost_idr?: number
+          markup_percent?: number | null
+          manual_price_idr?: number | null
+          specs?: Json
           is_featured?: boolean
           karat_id?: number
           labour_fee_type?: Database["public"]["Enums"]["labour_fee_type"]
@@ -467,6 +497,7 @@ export type Database = {
           default_labour_fee_type: Database["public"]["Enums"]["labour_fee_type"]
           default_labour_fee_value: number
           demo_mode: boolean
+          pricing: Json
           feature_flags: Json
           id: number
           price_stale_hours: number
@@ -481,6 +512,7 @@ export type Database = {
           default_labour_fee_type?: Database["public"]["Enums"]["labour_fee_type"]
           default_labour_fee_value?: number
           demo_mode?: boolean
+          pricing?: Json
           feature_flags?: Json
           id?: number
           price_stale_hours?: number
@@ -495,6 +527,7 @@ export type Database = {
           default_labour_fee_type?: Database["public"]["Enums"]["labour_fee_type"]
           default_labour_fee_value?: number
           demo_mode?: boolean
+          pricing?: Json
           feature_flags?: Json
           id?: number
           price_stale_hours?: number

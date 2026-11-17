@@ -48,6 +48,15 @@ async function NewProduct() {
     featured: false,
     demo: false,
     videoUrl: "",
+    sku: "",
+    nameEn: "",
+    descriptionEn: "",
+    grossWeight: "",
+    gemstone: "",
+    gemstoneEn: "",
+    materialCost: "0",
+    markupPercent: "",
+    manualPrice: "",
   };
 
   return (

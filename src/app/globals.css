@@ -12,35 +12,34 @@
 
 :root {
   /* ── 1. Primitives ─────────────────────────────────────────────── */
-  /* Beludru: the maroon velvet tray gold is shown on. */
-  --beludru-950: #2e0710;
-  --beludru-900: #4a0c1a;
-  --beludru-800: #5e0f1f;
-  --beludru-700: #7a1a2c;
-  --beludru-100: #f6e4e6;
-  --beludru-50: #fbf3f4;
+  /* Arang: deep charcoal, the ink and the dark surfaces. */
+  --arang-950: #171512;
+  --arang-900: #25221e;
+  --arang-800: #38342e;
+  --arang-700: #4c463e;
 
-  /* Emas: 300–500 for fills and rules, 700 for text and icons on light. */
-  --emas-300: #f0cf7a;
-  --emas-400: #e0b341;
-  --emas-500: #c9992a;
-  --emas-700: #8a6410;
-  --emas-50: #fbf5e6;
+  /* Sampanye: champagne gold. 400 is the accent; 700 is for text and icons on light. */
+  --sampanye-50: #f3ecdd;
+  --sampanye-200: #e8d9b8;
+  --sampanye-300: #dcc591;
+  --sampanye-400: #c6a15b;
+  --sampanye-500: #ab8640;
+  --sampanye-700: #7a5c20;
 
-  /* Kertas and tinta: paper and ink. */
-  --kertas-0: #ffffff;
-  --kertas-50: #f7f4f0;
-  --tinta-200: #e6dfdc;
-  --tinta-300: #cfc6c4;
-  --tinta-400: #948a88;
-  --tinta-600: #5b4e50;
-  --tinta-900: #1f1517;
+  /* Gading: ivory paper, from white to soft beige. */
+  --gading-0: #ffffff;
+  --gading-50: #f8f5ef;
+  --gading-200: #eae3d8;
+  --gading-300: #ddd4c5;
+  --abu-300: #cfc8bc;
+  --abu-500: #8c8377;
+  --abu-700: #5f584e;
 
   /* Fixed-purpose hues. */
   --hijau-wa-700: #0f7a5b;
   --hijau-wa-800: #0b6149;
-  --kuning-50: #fff4d6;
-  --kuning-900: #6b4a00;
+  --kuning-50: #f4e8c9;
+  --kuning-900: #5c4300;
   --merah-600: #b3261e;
   --hijau-700: #1e6b3a;
 
@@ -60,58 +59,59 @@
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 
   /* ── 2. Semantic ───────────────────────────────────────────────── */
-  --radius: 0.375rem;
+  --radius: 0.1875rem;
 
-  --background: var(--kertas-0);
-  --foreground: var(--tinta-900);
-  --surface-muted: var(--kertas-50);
-  --surface-tint: var(--emas-50);
+  --background: var(--gading-50);
+  --foreground: var(--arang-900);
+  --surface-muted: var(--gading-200);
+  --surface-tint: var(--sampanye-50);
 
-  --brand: var(--beludru-800);
-  --brand-deep: var(--beludru-900);
-  --brand-hover: var(--beludru-700);
-  --brand-foreground: var(--kertas-0);
+  /* Charcoal is the brand surface; gold only ever accents it. */
+  --brand: var(--arang-900);
+  --brand-deep: var(--arang-950);
+  --brand-hover: var(--arang-800);
+  --brand-foreground: var(--gading-50);
 
-  --gold: var(--emas-400);
-  --gold-ink: var(--emas-700);
-  --gold-bright: var(--emas-300);
+  --gold: var(--sampanye-400);
+  --gold-ink: var(--sampanye-700);
+  --gold-bright: var(--sampanye-300);
 
   --whatsapp: var(--hijau-wa-700);
   --whatsapp-hover: var(--hijau-wa-800);
-  --whatsapp-foreground: var(--kertas-0);
+  --whatsapp-foreground: var(--gading-0);
 
   --notice: var(--kuning-50);
   --notice-foreground: var(--kuning-900);
   --success: var(--hijau-700);
 
   /* shadcn/ui contract */
-  --card: var(--kertas-0);
-  --card-foreground: var(--tinta-900);
-  --popover: var(--kertas-0);
-  --popover-foreground: var(--tinta-900);
+  --card: var(--gading-0);
+  --card-foreground: var(--arang-900);
+  --popover: var(--gading-0);
+  --popover-foreground: var(--arang-900);
   --primary: var(--brand);
   --primary-foreground: var(--brand-foreground);
   --secondary: var(--surface-muted);
-  --secondary-foreground: var(--tinta-900);
+  --secondary-foreground: var(--arang-900);
   --muted: var(--surface-muted);
-  --muted-foreground: var(--tinta-600);
+  --muted-foreground: var(--abu-700);
   --accent: var(--surface-tint);
-  --accent-foreground: var(--tinta-900);
+  --accent-foreground: var(--arang-900);
   --destructive: var(--merah-600);
-  --border: var(--tinta-200);
-  --input: var(--tinta-400);
+  --border: var(--gading-300);
+  --input: var(--abu-500);
   --ring: var(--brand);
 
   --touch-target: 3rem;
   /* 1rem, but never more than 5% of the screen: with very large phone text the
      side margins stay put instead of doubling and eating the content width. */
   --page-gutter: min(var(--space-4), 5vw);
-  --content-max: 72rem;
+  --content-max: 76rem;
 
   /* ── 3. Component ──────────────────────────────────────────────── */
   --price-board-bg: var(--brand);
   --price-board-fg: var(--brand-foreground);
-  --price-board-muted: var(--beludru-100);
+  --price-board-muted: var(--abu-300);
   --price-board-rule: color-mix(in srgb, var(--gold) 38%, transparent);
   --price-board-accent: var(--gold-bright);
 
@@ -119,25 +119,25 @@
   --price-strip-fg: var(--foreground);
   --price-strip-border: color-mix(in srgb, var(--gold) 55%, transparent);
 
-  --nota-bg: var(--kertas-0);
-  --nota-edge: var(--brand);
-  --nota-leader: var(--tinta-300);
+  --nota-bg: var(--gading-0);
+  --nota-edge: var(--gold);
+  --nota-leader: var(--abu-300);
 
   --tray-bg: var(--brand-deep);
-  --tray-card-bg: var(--kertas-0);
+  --tray-card-bg: var(--gading-0);
 
   --button-height: var(--touch-target);
   --input-height: var(--touch-target);
 }
 
-/* Inside a dark (maroon) surface the focus ring switches to gold so it stays visible. */
+/* Inside a dark (charcoal) surface the focus ring switches to gold so it stays visible. */
 .on-dark {
   --ring: var(--gold-bright);
 }
 
 @theme inline {
   --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-besley), ui-serif, Georgia, serif;
+  --font-display: var(--font-playfair), ui-serif, Georgia, serif;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -184,10 +184,11 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
+  /* Deliberately tight: a jeweller's card has crisp corners. */
   --radius-sm: 0.125rem;
   --radius-md: var(--radius);
-  --radius-lg: 0.625rem;
-  --radius-xl: 1rem;
+  --radius-lg: 0.25rem;
+  --radius-xl: 0.375rem;
 
   --ease-out-strong: var(--ease-out);
 }
@@ -220,6 +221,7 @@
     @apply font-display;
     text-wrap: balance;
     line-height: 1.15;
+    letter-spacing: -0.005em;
     /* Only breaks inside a word when that word alone is wider than the line
        (a long Indonesian word with a very large phone text setting). */
     overflow-wrap: break-word;
@@ -349,6 +351,44 @@
 @utility price-fit {
   font-size: clamp(18px, 10cqi, var(--price-fit-max, 1.75rem));
   line-height: 1.2;
+}
+
+/* The small line above a section title: spaced capitals in gold ink with a short rule. */
+@utility eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--gold-ink);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  &::before {
+    content: "";
+    flex: none;
+    width: 2rem;
+    height: 1px;
+    background: currentColor;
+  }
+}
+
+/*
+ * The catalogue filters are a <details> so they fold away on a phone. On a wide
+ * screen they sit in a sidebar and are always open: the summary is hidden and the
+ * content shown whatever the open state. Browsers without ::details-content keep
+ * the ordinary fold-away behaviour.
+ */
+@supports selector(::details-content) {
+  @media (min-width: 64rem) {
+    .filters-pinned > summary {
+      display: none;
+    }
+    .filters-pinned::details-content {
+      display: block;
+      content-visibility: visible;
+    }
+  }
 }
 
 @utility price {

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Besley, Plus_Jakarta_Sans } from "next/font/google";
+import { Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { siteConfig } from "@/config/owner";
 import { getDictionary } from "@/i18n";
@@ -12,9 +12,10 @@ const jakarta = Plus_Jakarta_Sans({
   display: "swap",
 });
 
-const besley = Besley({
-  variable: "--font-besley",
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
   subsets: ["latin"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -35,15 +36,15 @@ export const viewport: Viewport = {
   viewportFit: "cover",
   // The on-screen keyboard shrinks the layout on Android, as it does on iOS.
   interactiveWidget: "resizes-content",
-  // Matches the maroon header at the very top of every public page.
-  themeColor: "#5e0f1f",
+  // Matches the charcoal strip at the very top of every public page.
+  themeColor: "#25221e",
   // Light only: stops dark-mode browsers restyling form controls.
   colorScheme: "light",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="id" className={`${jakarta.variable} ${besley.variable} h-full antialiased`}>
+    <html lang="id" className={`${jakarta.variable} ${playfair.variable} h-full antialiased`}>
       <body className="flex min-h-dvh flex-col">
         <a
           href="#isi"

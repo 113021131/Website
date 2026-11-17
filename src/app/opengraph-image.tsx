@@ -5,7 +5,7 @@ export const alt = "Toko Emas Sinar Mas: harga emas hari ini dan perhiasan emas"
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-/** Default share image: the brand on the maroon board. Product pages use their own photo. */
+/** Default share image: the brand on the charcoal board. Product pages use their own photo. */
 export default function OpengraphImage() {
   return new ImageResponse(
     (
@@ -17,7 +17,7 @@ export default function OpengraphImage() {
           flexDirection: "column",
           justifyContent: "center",
           padding: 96,
-          background: "#5e0f1f",
+          background: "#25221e",
           color: "#ffffff",
           fontFamily: "serif",
         }}

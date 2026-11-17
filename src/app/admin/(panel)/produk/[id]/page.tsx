@@ -6,6 +6,7 @@ import { getDictionary } from "@/i18n";
 import { requireAdmin } from "@/lib/auth/dal";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { ModelManager, PhotoManager } from "../media-manager";
+import { REFERENCE_KARAT_CODE } from "@/lib/pricing/reference";
 import { ProductForm, type ProductFormValues } from "../product-form";
 import { DeleteProductButton } from "./delete-button";
 
@@ -36,10 +37,11 @@ async function EditProduct({ params }: Pick<Props, "params">) {
   const [{ data: product }, { data: categories }, { data: karats }] = await Promise.all([
     supabase.from("products").select("*, product_images(id, storage_path, alt, sort_order)").eq("id", id).maybeSingle(),
     supabase.from("categories").select("id, name").order("sort_order"),
-    supabase.from("karats").select("id, code").order("sort_order"),
+    supabase.from("karats").select("id, code").neq("code", REFERENCE_KARAT_CODE).order("sort_order"),
   ]);
   if (!product) notFound();
 
+  const optional = (value: number | null | undefined) => (value == null ? "" : String(Number(value)).replace(".", ","));
   const values: ProductFormValues = {
     name: product.name,
     slug: product.slug,
@@ -56,6 +58,15 @@ async function EditProduct({ params }: Pick<Props, "params">) {
     featured: product.is_featured,
     demo: product.is_demo,
     videoUrl: product.video_url ?? "",
+    sku: product.sku ?? "",
+    nameEn: product.name_en ?? "",
+    descriptionEn: product.description_en ?? "",
+    grossWeight: optional(product.gross_weight_g),
+    gemstone: product.gemstone_details ?? "",
+    gemstoneEn: product.gemstone_details_en ?? "",
+    materialCost: String(product.material_cost_idr ?? 0),
+    markupPercent: optional(product.markup_percent),
+    manualPrice: optional(product.manual_price_idr),
   };
 
   const images = [...product.product_images]

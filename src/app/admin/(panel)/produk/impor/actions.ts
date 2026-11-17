@@ -46,7 +46,7 @@ export async function importProducts(rows: ImportRow[]): Promise<{ ok: boolean; 
 
   const supabase = await createServerSupabase();
   const [{ data: karats }, { data: categories }, { data: existing }] = await Promise.all([
-    supabase.from("karats").select("id, code"),
+    supabase.from("karats").select("id, code").eq("is_active", true),
     supabase.from("categories").select("id, slug"),
     supabase.from("products").select("slug"),
   ]);

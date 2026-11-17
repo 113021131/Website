@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { fill, getDictionary } from "@/i18n";
 import { requireAdmin } from "@/lib/auth/dal";
 import { formatDateTime, formatIdrPlain } from "@/lib/format";
+import { REFERENCE_KARAT_CODE } from "@/lib/pricing/reference";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { PriceForm, type PriceFormRow } from "./price-form";
 
@@ -43,6 +44,8 @@ async function PriceEditor() {
   ]);
 
   const timeZone = settings?.timezone ?? "Asia/Jakarta";
+  // The 24K reference has its own history on the formula screen.
+  const shownHistory = (history ?? []).filter((entry) => entry.karats?.code !== REFERENCE_KARAT_CODE);
   const who = (userId: string | null) => admins?.find((admin) => admin.user_id === userId)?.email ?? t.unknownUser;
 
   const rows: PriceFormRow[] = (karats ?? []).map((karat) => {
@@ -71,7 +74,7 @@ async function PriceEditor() {
         <h2 id="history-title" className="text-lg font-semibold">
           {t.historyTitle}
         </h2>
-        {history && history.length > 0 ? (
+        {shownHistory.length > 0 ? (
           <div tabIndex={0} role="region" aria-labelledby="history-title" className="mt-3 overflow-x-auto rounded-lg border bg-background">
             <table className="w-full min-w-[34rem] border-collapse text-sm">
               <thead>
@@ -84,7 +87,7 @@ async function PriceEditor() {
                 </tr>
               </thead>
               <tbody>
-                {history.map((entry) => (
+                {shownHistory.map((entry) => (
                   <tr key={entry.id} className="border-t">
                     <td className="price px-3 py-2">{formatDateTime(entry.effective_at, timeZone)}</td>
                     <td className="px-3 py-2 font-semibold">{entry.karats?.code}</td>

@@ -31,7 +31,7 @@ export function MobileMenu({ links, openLabel, closeLabel }: { links: NavLink[];
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpenAt(open ? null : pathname)}
-        className="hover:bg-brand-hover -mr-2 inline-flex min-h-12 items-center gap-2 rounded-md px-2 text-sm font-semibold"
+        className="hover:bg-surface-muted -mr-2 inline-flex min-h-12 items-center gap-2 rounded-md px-2 text-sm font-semibold"
       >
         {open ? <XIcon className="size-5" aria-hidden="true" /> : <MenuIcon className="size-5" aria-hidden="true" />}
         {open ? closeLabel : openLabel}
@@ -40,7 +40,7 @@ export function MobileMenu({ links, openLabel, closeLabel }: { links: NavLink[];
         <nav
           id={panelId}
           aria-label={openLabel}
-          className="text-foreground absolute inset-x-4 top-full z-40 overscroll-contain rounded-md border bg-background p-2 shadow-lg"
+          className="text-foreground absolute inset-x-4 top-full z-40 overscroll-contain rounded-md border bg-card p-2 shadow-lg"
         >
           <ul>
             {links.map((link) => (

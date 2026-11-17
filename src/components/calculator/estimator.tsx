@@ -3,13 +3,15 @@
 import { useId, useState } from "react";
 import { fieldError, fieldHint, fieldInput, fieldLabel } from "@/components/ui/styles";
 import { WhatsAppButton } from "@/components/whatsapp-button";
-import { fill, type Dictionary } from "@/i18n";
+import { fill, type Dictionary, type Locale } from "@/i18n";
 import type { PriceRow } from "@/lib/data/public";
 import { formatIdr, formatWeight, parseWeightInput } from "@/lib/format";
 import { calculatePrice, type LabourFeeType, type Rounding } from "@/lib/pricing/calculate";
+import { calculateBuyback } from "@/lib/pricing/reference";
+import { formatPercent } from "@/lib/product-text";
 import { cn } from "@/lib/utils";
 
-type Copy = Pick<Dictionary, "calculator" | "product" | "cta" | "whatsappMessage">;
+type Copy = Pick<Dictionary, "calculator" | "product" | "cta" | "whatsappMessage"> & { locale: Locale };
 
 function parseFee(text: string): number | null {
   if (text.trim() === "") return 0;
@@ -19,15 +21,20 @@ function parseFee(text: string): number | null {
 
 /**
  * One estimator card.
- *   "buy":  weight × selling price + making fee, rounded by the shop's rule.
- *   "sell": weight × buyback price. No fee and no rounding up: this is money the
- *           customer receives, so the estimate must not overstate it.
+ *   "buy":  weight × selling price + making fee + the shop's default margin (and
+ *           tax, when one is configured), rounded by the shop's rule. The same
+ *           formula as a catalogue estimate.
+ *   "sell": weight × buyback price − the configured deduction, rounded down:
+ *           this is money the customer receives, so the estimate must not overstate it.
  */
 export function Estimator({
   mode,
   rows,
   rounding,
   defaultFee,
+  markupPercent = 0,
+  taxPercent = 0,
+  buybackDeductionIdr = 0,
   brand,
   whatsappNumber,
   t,
@@ -36,13 +43,20 @@ export function Estimator({
   rows: PriceRow[];
   rounding: Rounding;
   defaultFee: { type: LabourFeeType; value: number };
+  /** The shop's default margin and tax, in percent ("buy" only). */
+  markupPercent?: number;
+  taxPercent?: number;
+  /** Flat deduction per item on a buyback ("sell" only). */
+  buybackDeductionIdr?: number;
   brand: string;
   whatsappNumber: string | null;
   t: Copy;
 }) {
   const c = t.calculator;
   const ids = useId();
-  const [karat, setKarat] = useState(rows.find((row) => row.karatCode === "22K")?.karatCode ?? rows[0]?.karatCode ?? "");
+  const [karat, setKarat] = useState(
+    rows.find((row) => row.karatCode === "22K")?.karatCode ?? rows[0]?.karatCode ?? "",
+  );
   const [weightText, setWeightText] = useState("");
   const [feeType, setFeeType] = useState<LabourFeeType>(defaultFee.type);
   const [feeText, setFeeText] = useState(defaultFee.value > 0 ? String(defaultFee.value) : "");
@@ -53,19 +67,51 @@ export function Estimator({
   const fee = parseFee(feeText);
   const feeInvalid = mode === "buy" && (fee === null || (feeType === "percent" && fee > 100));
 
-  let estimate = null;
+  // One shape for both modes, so the result block below does not care which it shows.
+  let estimate: {
+    totalIdr: number;
+    pricePerGramIdr: number;
+    goldValueIdr: number;
+    labourFeeIdr: number;
+    markupIdr: number;
+    taxIdr: number;
+    deductionIdr: number;
+    roundingAdjustmentIdr: number;
+  } | null = null;
   if (row && weightG !== null && !feeInvalid) {
     try {
-      estimate = calculatePrice({
-        weightG,
-        pricePerGramIdr: mode === "buy" ? row.sellIdr : row.buybackIdr,
-        labourFee: mode === "buy" ? { type: feeType, value: fee ?? 0 } : { type: "fixed", value: 0 },
-        rounding: mode === "buy" ? rounding : { mode: "none", stepIdr: 1 },
-      });
+      if (mode === "buy") {
+        const price = calculatePrice({
+          weightG,
+          pricePerGramIdr: row.sellIdr,
+          labourFee: { type: feeType, value: fee ?? 0 },
+          markupPercent,
+          taxPercent,
+          rounding,
+        });
+        estimate = { ...price, deductionIdr: 0 };
+      } else {
+        const buyback = calculateBuyback({
+          weightG,
+          buybackPerGramIdr: row.buybackIdr,
+          deductionIdr: buybackDeductionIdr,
+        });
+        estimate = {
+          totalIdr: buyback.totalIdr,
+          pricePerGramIdr: buyback.buybackPerGramIdr,
+          goldValueIdr: buyback.grossIdr,
+          labourFeeIdr: 0,
+          markupIdr: 0,
+          taxIdr: 0,
+          deductionIdr: buyback.deductionIdr,
+          roundingAdjustmentIdr: buyback.totalIdr - Math.max(0, buyback.grossIdr - buyback.deductionIdr),
+        };
+      }
     } catch {
       estimate = null;
     }
   }
+  const percentLabel = (value: number) => formatPercent(value, t.locale).replace("%", "");
 
   const message =
     estimate && row && weightG !== null
@@ -78,7 +124,10 @@ export function Estimator({
       : fill(t.whatsappMessage.price, { brand });
 
   return (
-    <section aria-labelledby={`${ids}-title`} className="@container border-t-brand rounded-sm border border-t-4 bg-background p-[min(1rem,5vw)] md:p-6">
+    <section
+      aria-labelledby={`${ids}-title`}
+      className="@container bg-card border-t-gold rounded-sm border border-t-2 p-[min(1rem,5vw)] md:p-6"
+    >
       <h2 id={`${ids}-title`} className="text-xl font-semibold">
         {mode === "buy" ? c.buyTab : c.sellTab}
       </h2>
@@ -178,7 +227,9 @@ export function Estimator({
         <p className="text-sm font-semibold">{mode === "buy" ? c.resultBuy : c.resultSell}</p>
         {estimate && row && weightG !== null ? (
           <>
-            <p className="font-display price price-fit mt-0.5 font-semibold [--price-fit-max:2rem]">{formatIdr(estimate.totalIdr)}</p>
+            <p className="font-display price price-fit mt-0.5 font-semibold [--price-fit-max:2rem]">
+              {formatIdr(estimate.totalIdr)}
+            </p>
             <dl className="text-muted-foreground mt-2 space-y-1 text-sm">
               <div className="flex flex-wrap justify-between gap-x-3">
                 <dt>
@@ -193,6 +244,28 @@ export function Estimator({
                 <div className="flex flex-wrap justify-between gap-x-3">
                   <dt>{t.product.labour}</dt>
                   <dd className="price">{formatIdr(estimate.labourFeeIdr)}</dd>
+                </div>
+              ) : null}
+              {estimate.markupIdr > 0 ? (
+                <div className="flex flex-wrap justify-between gap-x-3">
+                  <dt>
+                    {fill(t.product.markup, {
+                      percent: percentLabel(markupPercent),
+                    })}
+                  </dt>
+                  <dd className="price">{formatIdr(estimate.markupIdr)}</dd>
+                </div>
+              ) : null}
+              {estimate.taxIdr > 0 ? (
+                <div className="flex flex-wrap justify-between gap-x-3">
+                  <dt>{fill(t.product.tax, { percent: percentLabel(taxPercent) })}</dt>
+                  <dd className="price">{formatIdr(estimate.taxIdr)}</dd>
+                </div>
+              ) : null}
+              {estimate.deductionIdr > 0 ? (
+                <div className="flex flex-wrap justify-between gap-x-3">
+                  <dt>{t.product.buybackDeduction}</dt>
+                  <dd className="price">{formatIdr(-estimate.deductionIdr)}</dd>
                 </div>
               ) : null}
               {estimate.roundingAdjustmentIdr !== 0 ? (

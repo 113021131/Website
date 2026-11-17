@@ -2,15 +2,18 @@ import Link from "next/link";
 import { localePath, type Dictionary } from "@/i18n";
 import type { PricedProduct } from "@/lib/catalog";
 import { formatIdr, formatWeight } from "@/lib/format";
+import { productName } from "@/lib/product-text";
 import { cn } from "@/lib/utils";
 import { toJewelKind } from "./jewel-art";
 import { ProductPhoto } from "./product-photo";
 
 /**
- * Catalogue card. Built for the worst cases in DESIGN.md: a very long name
- * (clamped to two lines, full name stays in the link's accessible name), a
- * missing photo, Rp 100 juta+ beside 0,1 g, and sold / out-of-stock items that
- * stay visible but marked.
+ * Catalogue card: a square photograph on white, then category, name, karat and
+ * net gold weight, and the estimated price. Built for the worst cases in
+ * DESIGN.md: a very long name (clamped to two lines, full name stays in the
+ * link's accessible name), a missing photo, Rp 100 juta+ beside 0,1 g, and sold
+ * or out-of-stock items that stay visible but marked. Concept designs and other
+ * demonstration products always carry a badge.
  */
 export function ProductCard({
   product,
@@ -24,21 +27,26 @@ export function ProductCard({
   priority?: boolean;
 }) {
   const photo = product.images[0];
+  const name = productName(product, t.locale);
   const unavailable = product.status === "sold" || product.status === "out_of_stock";
   const statusLabel =
     product.status === "sold" ? t.catalog.sold : product.status === "out_of_stock" ? t.catalog.outOfStock : null;
+  const demoLabel = product.isConcept ? t.catalog.concept : product.isDemo ? t.catalog.demo : null;
 
   return (
-    <article className="relative flex h-full flex-col rounded-lg border bg-background p-2.5">
-      <div className="bg-surface-tint relative aspect-[4/5] overflow-hidden rounded-md">
+    <article className="group relative flex h-full flex-col">
+      <div className="bg-card relative aspect-square overflow-hidden rounded-md border">
         <ProductPhoto
           src={photo?.url ?? null}
-          alt={photo?.alt || product.name}
+          alt={photo?.alt || name}
           sizes={sizes}
           priority={priority}
-          className={cn("object-cover", unavailable && "opacity-55")}
+          className={cn(
+            "object-cover transition-transform duration-500 ease-out-strong motion-safe:group-hover:scale-[1.03]",
+            unavailable && "opacity-55",
+          )}
           kind={toJewelKind(product.categorySlug)}
-          fallbackLabel={t.catalog.noPhoto}
+          fallbackLabel={product.isConcept ? t.product.photoPending : t.catalog.noPhoto}
         />
         <div className="absolute top-2 left-2 flex flex-wrap gap-1">
           {statusLabel ? (
@@ -46,33 +54,43 @@ export function ProductCard({
               {statusLabel}
             </span>
           ) : null}
-          {product.isDemo ? (
+          {demoLabel ? (
             <span className="bg-notice text-notice-foreground rounded-sm px-1.5 py-0.5 text-xs font-semibold">
-              {t.catalog.demo}
+              {demoLabel}
             </span>
           ) : null}
         </div>
       </div>
 
-      <div className="mt-2.5 min-h-[2.25rem]">
-        <h3 className="line-clamp-2 font-sans text-sm leading-[1.125rem] font-semibold break-words">
+      {product.categoryName ? (
+        <p className="text-gold-ink mt-3 text-[0.6875rem] font-semibold tracking-[0.14em] break-words uppercase">
+          {product.categoryName}
+        </p>
+      ) : null}
+      <div className={cn("min-h-[2.5rem]", product.categoryName ? "mt-1" : "mt-3")}>
+        <h3 className="line-clamp-2 font-sans text-[0.9375rem] leading-5 font-semibold break-words">
           {/* The stretched link makes the whole card one tap target. */}
-          <Link href={localePath(t.locale, `/katalog/${product.slug}`)} className="focus-visible:after:outline-ring after:absolute after:inset-0 after:rounded-lg focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2">
-            {product.name}
+          <Link
+            href={localePath(t.locale, `/katalog/${product.slug}`)}
+            className="focus-visible:after:outline-ring after:absolute after:inset-0 after:rounded-md focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2"
+          >
+            {name}
           </Link>
         </h3>
       </div>
       <p className="price text-muted-foreground mt-1 text-[0.8125rem]">
         {product.karatCode}, {formatWeight(product.weightG)}
       </p>
-      <div className="mt-auto pt-1.5">
-        {product.estimate ? (
+      <div className="mt-auto pt-2">
+        {product.priceIdr !== null ? (
           <p className="leading-tight">
-            <span className="text-muted-foreground block text-xs">{t.catalog.estimated}</span>
+            <span className="text-muted-foreground block text-xs">
+              {product.isManualPrice ? t.product.manualPrice : t.catalog.estimated}
+            </span>
             {/* An ordinary space after "Rp", so a very large amount can drop the number onto
                 its own line in a narrow card. Digits never split: there is no break inside them. */}
-            <span className="text-[0.9375rem] font-semibold tabular-nums">
-              {formatIdr(product.estimate.totalIdr).replace(" ", " ")}
+            <span className="font-display text-[1.0625rem] font-semibold tabular-nums">
+              {formatIdr(product.priceIdr).replace(" ", " ")}
             </span>
           </p>
         ) : (

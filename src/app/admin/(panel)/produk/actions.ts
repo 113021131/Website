@@ -14,7 +14,7 @@ import { warmPaths } from "@/lib/warm";
 export type ProductFormState = {
   status: "idle" | "saved" | "error";
   message: string;
-  errors: Partial<Record<"name" | "weight" | "karat" | "fee" | "slug" | "video", string>>;
+  errors: Partial<Record<"name" | "weight" | "karat" | "fee" | "slug" | "video" | "detail", string>>;
 };
 
 const OCCASIONS = Object.keys(getDictionary().catalog.occasions);
@@ -66,9 +66,31 @@ export async function saveProduct(
   const videoUrl = text("videoUrl");
   if (videoUrl && !z.url({ protocol: /^https$/ }).safeParse(videoUrl).success) errors.video = t.validation.video;
 
+  // Optional details: blank means "not set". Any that is filled in must be a sensible number.
+  const grossWeight = text("grossWeight") ? parseWeightInput(text("grossWeight")) : null;
+  const materialCost = parseAmount(text("materialCost") || "0");
+  const markupPercent = text("markupPercent") ? parseAmount(text("markupPercent")) : null;
+  const manualPrice = text("manualPrice") ? parseAmount(text("manualPrice")) : null;
+  if (
+    (text("grossWeight") && (grossWeight === null || (weight !== null && grossWeight < weight))) ||
+    materialCost === null ||
+    !Number.isInteger(materialCost) ||
+    (text("markupPercent") && (markupPercent === null || markupPercent > 100)) ||
+    (text("manualPrice") && (manualPrice === null || manualPrice <= 0 || !Number.isInteger(manualPrice)))
+  ) {
+    errors.detail = t.validation.detail;
+  }
+
   const status = z.enum(Constants.public.Enums.product_status).safeParse(text("status"));
 
-  if (Object.keys(errors).length > 0 || !feeType.success || weight === null || feeValue === null || !status.success) {
+  if (
+    Object.keys(errors).length > 0 ||
+    !feeType.success ||
+    weight === null ||
+    feeValue === null ||
+    materialCost === null ||
+    !status.success
+  ) {
     return { status: "error", message: t.failed, errors };
   }
 
@@ -101,6 +123,15 @@ export async function saveProduct(
     is_featured: formData.get("featured") === "on",
     is_demo: formData.get("demo") === "on",
     video_url: videoUrl || null,
+    sku: text("sku").slice(0, 40) || null,
+    name_en: text("nameEn").slice(0, 200) || null,
+    description_en: text("descriptionEn").slice(0, 4000) || null,
+    gross_weight_g: grossWeight,
+    gemstone_details: text("gemstone").slice(0, 300) || null,
+    gemstone_details_en: text("gemstoneEn").slice(0, 300) || null,
+    material_cost_idr: materialCost,
+    markup_percent: markupPercent,
+    manual_price_idr: manualPrice,
   };
 
   if (productId === null) {
@@ -162,6 +193,16 @@ export async function duplicateProduct(productId: number): Promise<{ ok: boolean
       price_on_request: source.price_on_request,
       is_demo: source.is_demo,
       video_url: source.video_url,
+      // The SKU is unique, so a copy starts without one.
+      name_en: source.name_en,
+      description_en: source.description_en,
+      gross_weight_g: source.gross_weight_g,
+      gemstone_details: source.gemstone_details,
+      gemstone_details_en: source.gemstone_details_en,
+      material_cost_idr: source.material_cost_idr,
+      markup_percent: source.markup_percent,
+      manual_price_idr: source.manual_price_idr,
+      specs: source.specs,
       status: "draft",
       is_featured: false,
     })

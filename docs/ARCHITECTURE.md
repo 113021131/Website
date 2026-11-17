@@ -19,7 +19,7 @@ There is no privileged server key in the app. A bug in the Next.js code cannot w
 |---|---|
 | `src/app/(id)`, `src/app/en` | Generated route files, one per page per language. Each binds a view to a fixed locale. Do not edit by hand |
 | `src/views` | The real public pages (home, harga-emas, katalog, produk, kalkulator, artikel, …) and the reservation Server Action. They take the language as a prop |
-| `src/app/admin` | `login`, `(panel)/{harga,produk,leads,artikel,toko}` |
+| `src/app/admin` | `login`, `(panel)/{harga,rumus,produk,leads,artikel,toko}` |
 | `src/app/dev/break-ui` | Dev-only stress page, 404 in production |
 | `src/components` | `layout`, `price`, `catalog`, `product`, `seo`, `ui` |
 | `src/lib/catalog.ts` | Pure catalogue logic: estimates, URL filters, sorting, paging |
@@ -27,7 +27,8 @@ There is no privileged server key in the app. A bug in the Next.js code cannot w
 | `src/lib/analytics.ts`, `src/lib/tryon` | Event wrapper (no provider chosen yet); try-on adapter with a stub |
 | `scripts` | `seed-demo.mjs`, `seed-articles.mjs`, `make-demo-model.mjs`, `break-ui-check.mjs` |
 | `src/proxy.ts` | Next 16 "proxy" (formerly middleware): refreshes the session, redirects `/admin/*` without a session |
-| `src/lib/pricing` | `calculatePrice()` — the only place a price is computed |
+| `src/lib/pricing` | The only place prices are computed: estimate, 24K reference and per-gram derivation, buyback, settings |
+| `src/data` | The concept collection and the manifest of its generated photos |
 | `src/lib/data` | Cached public reads, each tagged for on-demand revalidation (`public.ts`, and `content.ts` for price history and articles) |
 | `src/lib/warm.ts` | Background refresh of product pages after an admin change |
 | `src/lib/auth` | `requireAdmin()` — the data-access-layer guard |
@@ -40,14 +41,34 @@ There is no privileged server key in the app. A bug in the Next.js code cannot w
 
 ## Price formula
 
+One number drives everything: the **24K reference price per gram**.
+
 ```
-estimated_price = weight_g × price_per_gram(karat) + labour_fee      then rounded
+reference          = benchmark × (1 + manual adjustment %)                 rounded to the per-gram step
+price per gram (K) = reference × purity(K)                                 rounded to the per-gram step
+gold value         = net gold weight × price per gram (K)
+estimated price    = gold value + workmanship + stones/material + markup + tax     then rounded
+buyback per gram   = price per gram (K) × buyback % (per karat, else the default)
+buyback estimate   = net gold weight × buyback per gram − deduction        rounded DOWN, never below 0
 ```
 
-- Labour fee type per product: `per_gram` (Rupiah × grams, the shop default), `fixed` (Rupiah per item) or `percent` (of the gold value).
-- Rounding is a site setting. Default: **up** to the nearest Rp 1.000.
-- Integer arithmetic throughout: weight in milligrams, money in whole Rupiah, BigInt for intermediates. No floating-point money.
-- Each karat has its own price row. Nothing is derived from 24K.
+- Markup is a percentage of gold value + workmanship + material; tax is a percentage of that plus the markup. Each part is counted once.
+- Workmanship per product: `per_gram`, `fixed` or `percent` of the gold value. Markup per product, or the site default when the product has none.
+- A product with `manual_price_idr` shows that price as is and is never recalculated.
+- Final rounding is a site setting (default: **up** to the nearest Rp 1.000). Integer arithmetic throughout (milligrams, whole Rupiah, BigInt intermediates).
+- Code: `src/lib/pricing/calculate.ts` (estimate), `reference.ts` (reference, per-gram derivation, buyback), `settings.ts` (the tunable settings and their defaults). `src/lib/catalog.ts` applies them to products. The catalogue, product page, home page and calculator all call the same functions.
+
+**Where the numbers live.** The reference is the `gold_prices` row of the inactive karat `REF`, so its history, timestamp and "who changed it" come from the existing price triggers. Purity is `karats.purity_percent`. Everything else (benchmark, adjustment, source and its URL, retrieval time, "simulated" flag, default markup, tax, buyback rule, per-gram step) is JSON in `site_settings.pricing`; when that is empty the defaults in `settings.ts` apply.
+
+**Saving** (`/admin/rumus`, owner only) recalculates every active karat's `gold_prices` row from the reference and asks for confirmation first. Prices of products are not stored, so they follow by themselves. The older per-karat screen (`/admin/harga`) still works for a one-off correction, but the next save of the formula replaces it.
+
+**The reference is not a live feed.** The default benchmark is PT Antam's published buyback price for 1 g on 16 Nov 2026 (Rp 2.298.000), chosen as a stand-in for the raw metal value because it leaves out the minting premium and retail spread in Antam's selling price for a small bar (Rp 2.522.000 that day). It is flagged "simulated" and the site labels every figure accordingly until the owner enters the shop's own reference.
+
+## Concept collection
+
+While `site_settings.demo_mode` is on, the catalogue is led by twelve fictional designs from `src/data/concept-products.ts`. They are mapped onto the same `Product` type as database rows, priced by the same formula, badged "Konsep", carry the notice "DESAIN KONSEP — HARGA ILUSTRASI — BUKAN STOK TOKO" (English pages: "DESIGN CONCEPT — ILLUSTRATIVE PRICE — NOT ACTUAL STORE INVENTORY"), cannot be reserved, are kept out of the sitemap and get no Product structured data. The older placeholder rows flagged `is_demo` stay reachable by URL (they are the test fixtures) but are not listed beside them. Turn demo mode off and only database products remain.
+
+Photos for the concept collection are generated outside the app: originals go in `assets/generated/`, `node scripts/process-concept-images.mjs` writes WebP files to `public/images/` and records them in `src/data/concept-images.json`. A product without a photo shows a line drawing and "Foto studio sedang disiapkan". `--check` lists what is missing, `--prompts` prints the brief for each image.
 
 ## Data model
 
@@ -59,6 +80,7 @@ Notable rules:
 - `admin_users` is the email allowlist. A trigger on `auth.users` links a row to its auth user once that email is confirmed, and unlinks it if the email changes. RLS checks the linked `user_id`, never a claim the client controls.
 - `products.status`: `draft` is admin-only; `published`, `sold`, `out_of_stock` are public (sold items stay visible, marked).
 - Money `bigint` Rupiah; weight `numeric(8,3)`; timestamps `timestamptz` (UTC), displayed in `site_settings.timezone`.
+- Migration `20261116000100` adds `site_settings.pricing` and the product detail columns (`sku`, `name_en`, `description_en`, `gross_weight_g`, `gemstone_details(_en)`, `material_cost_idr`, `markup_percent`, `manual_price_idr`, `specs`). Applied to the development project on 16 Nov 2026. The app reads these columns when present and defaults when not, so the same code also runs against a database that does not have them yet (there the formula screen stores only the reference and the purities, and says so).
 
 ## Row Level Security
 

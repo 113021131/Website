@@ -11,7 +11,11 @@ export type Dataset = "demo" | "worst" | "empty" | "one";
 export const DATASETS: Dataset[] = ["demo", "worst", "empty", "one"];
 
 function product(
-  overrides: Partial<Omit<PricedProduct, "estimate">> & { id: number; name: string; totalIdr?: number | null },
+  overrides: Partial<Omit<PricedProduct, "estimate" | "buyback" | "priceIdr" | "isManualPrice">> & {
+    id: number;
+    name: string;
+    totalIdr?: number | null;
+  },
 ): PricedProduct {
   const { totalIdr = 6_825_000, ...rest } = overrides;
   const weightG = rest.weightG ?? 3.5;
@@ -40,7 +44,22 @@ function product(
     publishedAt: null,
     updatedAt: "2026-11-14T00:00:00Z",
     images: [{ url: storageUrl("product-images", "demo/demo-cincin-polos-22k-1.webp"), alt: "", width: 1000, height: 1250 }],
+    sku: null,
+    nameEn: null,
+    descriptionEn: null,
+    grossWeightG: null,
+    gemstone: null,
+    gemstoneEn: null,
+    materialCostIdr: 0,
+    markupPercent: null,
+    manualPriceIdr: null,
+    specs: [],
+    isConcept: false,
+    isBestsellerDemo: false,
     ...rest,
+    buyback: null,
+    priceIdr: total,
+    isManualPrice: false,
     estimate:
       total === null
         ? null
@@ -49,6 +68,9 @@ function product(
             pricePerGramIdr: 1_800_000,
             goldValueIdr: total,
             labourFeeIdr: 0,
+            materialCostIdr: 0,
+            markupIdr: 0,
+            taxIdr: 0,
             subtotalIdr: total,
             roundingAdjustmentIdr: 0,
             totalIdr: total,
@@ -56,16 +78,21 @@ function product(
   };
 }
 
-const board = (rows: PriceBoard["rows"], extra: Partial<PriceBoard> = {}): PriceBoard => ({
-  rows,
+type FixtureRow = Omit<PriceBoard["rows"][number], "purityPercent">;
+
+const board = (rows: FixtureRow[], extra: Partial<PriceBoard> = {}): PriceBoard => ({
+  rows: rows.map((row) => ({ ...row, purityPercent: null })),
   updatedAt: "2026-11-14T02:30:00Z",
   timeZone: "Asia/Jakarta",
   isStale: false,
   isDemo: false,
+  referenceIdr: null,
+  referenceUpdatedAt: null,
+  status: "current",
   ...extra,
 });
 
-const demoRows: PriceBoard["rows"] = [
+const demoRows: FixtureRow[] = [
   { karatCode: "24K", karatLabel: "Emas 24 Karat", sellIdr: 2_000_000, buybackIdr: 1_900_000 },
   { karatCode: "22K", karatLabel: "Emas 22 Karat", sellIdr: 1_800_000, buybackIdr: 1_650_000 },
   { karatCode: "18K", karatLabel: "Emas 18 Karat", sellIdr: 1_500_000, buybackIdr: 1_350_000 },

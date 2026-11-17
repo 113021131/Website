@@ -46,3 +46,7 @@ next-env.d.ts
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# photo originals: raw downloads and generator output; the site serves the processed copies in public/images
+/image/
+/assets/generated/
